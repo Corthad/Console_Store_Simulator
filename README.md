@@ -11,18 +11,21 @@
 
 ## Предварительная структура проекта
 - **main.cpp** - точка входа, запускает меню
-- **src/menu.h**			
+
 - **src/menu.cpp** - реализация взаимодействия с командной строкой.
-- **src/buyer.h**
 - **src/buyer.cpp** - логика покупок и управление корзиной.
-- **src/seller.h**
 - **src/seller.cpp** - управление магазином.
-- **src/storage.h**
-- **src/storage.cpp** - работа с файловой базой данных
-- **src/events.h**
+- **src/storage.cpp** - работа с файловой базой данных.
 - **src/events.cpp** - система случайных событий.
-- **src/buyer_bot.h**
 - **src/buyer_bot.cpp** - бот для автоматической симуляции покупателя.
-- **src/seller_bot.h**
 - **src/seller_bot.cpp** - бот для автоматической симуляции продавца.
+
 - **data/products.txt** - файл с данными о товарах.
+
+- **include/menu.h**
+- **include/buyer.h**
+- **include/seller.h**
+- **include/storage.h**
+- **include/events.h**
+- **include/buyer_bot.h**
+- **include/seller_bot.h**
