@@ -1,25 +1,99 @@
+#include "storage.h"
+
 #include <iostream>
 #include <fstream>
 #include <vector>
 
-#include "objbase.h"
+/*
+Вывод списка предметов в консоль.
+
+Args:
+
+ - `products` : std::vector<product>
+   Вектор из предметов. Смотри `product`
+*/
+void items_list(std::vector<product> items)
+{
+	for(product p : items)
+	{
+		std::cout << p.name << " ";
+		std::cout << p.price << " ";
+		std::cout << p.qty << " ";
+		std::cout << p.weight << "\n";
+	}
+}
 
 /*
-Контейнер для хранения состояний объекта.
+Загрузка игровых данных
+    
+Args:
 
-Values:
- - `name` : std::string -> Наименование
- - `price` : int -> Цена
- - `qty` : int -> Количество
- - `weight` : int -> Вес
+ - `path` : std::string
+   Путь к данным.
+
+Returns:
+
+ - `products` : std::vector<product>
+   Вектор из предметов. Смотри `product`
 */
-struct product
+std::vector<product> load_data(const std::string& path)
 {
-    std::string name;
-    unsigned price;
-    unsigned qty;
-    unsigned weight;
-};
+	std::vector<product> products;
+		
+	std::ifstream data;
+	data.open(path);
+	if(!data.is_open())
+	{
+		std::cout << "ERROR: Не удалось получить данные с файла\n";
+		return products; // Пустой вектор
+	}
+	
+	product p;
+	while(data >> p.name >> p.price >> p.qty >> p.weight) // Пока в data есть данные, добавляем их в products
+	{
+		products.push_back(p);
+	}
+	data.close();
+	
+	return products;
+}
+
+/*
+Сохранение игровых данных
+    
+Args:
+
+ - `path` : std::string
+   Путь, куда сохранятся данные.
+ - `products` : std::vector<product>
+   Вектор из предметов. Смотри `product`
+
+Returns:
+
+ - `code` : int
+   Код завершения. `0` - успешно, `1` - ошибка открытия файла.
+*/
+int save_data(const std::string& path, std::vector<product>& data)
+{
+	std::ofstream file;
+	file.open(path);
+	if(!file.is_open())
+	{
+		std::cout << "ERROR: Не удалось сохранить файл\n";
+		return 1;
+	}
+	
+	for(product item : data)
+	{
+		file << item.name << " ";
+		file << item.price << " ";
+		file << item.qty << " ";
+		file << item.weight << "\n";
+	}
+	file.close();
+	
+	return 0;
+}
 
 /*
 Добавление определённого предмета.
@@ -30,24 +104,25 @@ Args:
    Вектор из предметов. Смотри `product`
  - `id` : unsigned int
    ID предмета.
+ - `count` : unsigned int
+   Количество предметов.
 
 Returns:
 
- - `items` : std::vector<product>
-   Вектор из предметов. Смотри `product`
+ - `code` : int
+   Код завершения. `0` - успешно, `1` - некорректный id.
 */
-std::vector<product>& add_item(std::vector<product>& items, unsigned id, unsigned k = 1)
+int add_item(std::vector<product>& items, unsigned id, unsigned count)
 {
-    if(0 > id || id >= items.size())
-    {
-        std::cout << "ERROR: [id] находится за пределами размера [items]. Возвращены исходные данные.\n";
-    }
-    else
-    {
-        product *p = &items[id];
-        p->qty += k;
-    }
-    return items;
+	if(0 > id || id >= items.size())
+	{
+		std::cout << "ERROR: [id] находится за пределами размера [items]. Возвращены исходные данные.\n";
+		return 1;
+	}
+	
+	product *p = &items[id];
+	p->qty += count;
+	return 1;
 }
 
 /*
@@ -59,31 +134,30 @@ Args:
    Вектор из предметов. Смотри `product`
  - `id` : unsigned int
    ID предмета.
+ - `count` : unsigned int
+   Количество предметов.
 
 Returns:
 
- - `items` : std::vector<product>
-   Вектор из предметов. Смотри `product`
+ - `code` : int
+   Код завершения. `0` - успешно, `1` - некорректный id, `2` - ошибка изменения значения.
 */
-std::vector<product>& remove_item(std::vector<product>& items, unsigned id, unsigned k = 1)
+int remove_item(std::vector<product>& items, unsigned id, unsigned count)
 {
-    if(0 > id || id >= items.size())
-    {
-        std::cout << "ERROR: [id] находится за пределами размера [items]! Возвращены исходные данные.\n";
-    }
-    else
-    {
-        product *p = &items[id];
-        if(p->qty == 0)
-        {
-            std::cout << "WARNING: Количество данного предмета уже равно 0! Возвращены исходные данные.\n";
-        }
-        else
-        {
-            p->qty -= 1;
-        }
-    }
-    return items;
+	if(0 > id || id >= items.size())
+	{
+		std::cout << "ERROR: [id] находится за пределами размера [items]! Возвращены исходные данные.\n";
+		return 1;
+	}
+	
+	product *p = &items[id];
+	if(p->qty == 0)
+	{
+		std::cout << "WARNING: Количество данного предмета уже равно 0! Возвращены исходные данные.\n";
+		return 2;
+	}
+	p->qty -= count;
+	return 0;
 }
 
 /*
@@ -100,21 +174,20 @@ Args:
 
 Returns:
 
- - `items` : std::vector<product>
-   Вектор из предметов. Смотри `product`
+ - `code` : int
+   Код завершения. `0` - успешно, `1` - некорректный id.
 */
-std::vector<product>& set_item_price(std::vector<product>& items, unsigned id, unsigned price)
+int set_item_price(std::vector<product>& items, unsigned id, unsigned price)
 {
-    if(0 > id || id >= items.size())
-    {
-        std::cout << "WARNING: [id] находится за пределами размера [items]! Возвращены исходные данные.\n";
-    }
-    else
-    {
-        product *p = &items[id];
-        p->price = price;
-    }
-    return items;
+	if(0 > id || id >= items.size())
+	{
+		std::cout << "WARNING: [id] находится за пределами размера [items]! Возвращены исходные данные.\n";
+		return 1;
+	}
+	
+	product *p = &items[id];
+	p->price = price;
+	return 0;
 }
 
 /*
@@ -131,128 +204,18 @@ Args:
 
 Returns:
 
- - `items` : std::vector<product>
-   Вектор из предметов. Смотри `product`
-*/
-std::vector<product>& set_item_weight(std::vector<product>& items, unsigned id, unsigned weight)
-{
-    if(0 > id || id >= items.size())
-    {
-        std::cout << "WARNING: [id] находится за пределами размера [items]! Возвращены исходные данные.\n";
-    }
-    else
-    {
-        product *p = &items[id];
-        p->weight = weight;
-    }
-    return items;
-}
-
-/*
-Загрузка игровых данных
-    
-Args:
-
- - `path` : std::string
-   Путь к данным.
-
-Returns:
-
- - `products` : std::vector<product>
-   Вектор из предметов. Смотри `product`
-*/
-std::vector<product> load_data(std::string& path)
-{
-    std::vector<product> products;
-    
-    std::ifstream data;
-    data.open(path);
-    if(data.is_open())
-    {
-        product p;
-        while(data >> p.name >> p.price >> p.qty >> p.weight)
-        {
-            products.push_back(p);
-        }
-
-        data.close();
-    }
-    else
-    {
-        std::cout << "ERROR: Не удалось получить данные с файла\n";
-    }
-
-    return products;
-}
-
-/*
-Сохранение игровых данных
-    
-Args:
-
- - `path` : std::string
-   Путь, куда сохранятся данные.
- - `products` : std::vector<product>
-   Вектор из предметов. Смотри `product`
-
-Returns:
-
  - `code` : int
-   Код завершения. `0` - успешно, `1` - ошибка.
+   Код завершения. `0` - успешно, `1` - некорректный id.
 */
-int save_data(std::string& path, std::vector<product>& data)
+int set_item_weight(std::vector<product>& items, unsigned id, unsigned weight)
 {
-    std::ofstream file;
-    file.open(path);
-    if(file.is_open())
-    {
-        for(product item : data)
-        {
-            file << item.name << " ";
-            file << item.price << " ";
-            file << item.qty << " ";
-            file << item.weight << "\n";
-        }
-
-        file.close();
-        return 0;
-    }
-
-    std::cout << "ERROR: Не удалось сохранить файл\n";
-    return 1;
+	if(0 > id || id >= items.size())
+	{
+		std::cout << "WARNING: [id] находится за пределами размера [items]! Возвращены исходные данные.\n";
+		return 1;
+	}
+	
+	product *p = &items[id];
+	p->weight = weight;
+	return 0;
 }
-
-/* 
-int main()
-{
-    std::string load_path = "products.txt";
-    std::vector<product> products = load_data(load_path);
-
-    for(product p : products)
-    {
-        std::cout << p.name << " ";
-        std::cout << p.price << " ";
-        std::cout << p.qty << " ";
-        std::cout << p.weight << "\n";
-    }
-
-    add_item(products, 0, 5);
-    products = remove_item(products, 1, 2);
-
-    products = set_item_price(products, 0, 777);
-    products = set_item_weight(products, 1, 228);
-
-    for(product p : products)
-    {
-        std::cout << p.name << " ";
-        std::cout << p.price << " ";
-        std::cout << p.qty << " ";
-        std::cout << p.weight << "\n";
-    }
-
-    std::string save_path = "products_upd.txt";
-    save_data(save_path, products);
-
-    return 0;
-} 
-*/
