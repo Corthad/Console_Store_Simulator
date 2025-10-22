@@ -37,7 +37,11 @@ void serve_buyer(string product_name, int quantity)
 		cout << "&";
 		getline(cin, input);
 		cout << input.substr(0, input.find(" ")) << endl;
-		commands[input.substr(0, input.find(" "))](input.substr(input.find(" ")));
+
+		string func_name = input.substr(0, input.find(" "));
+		string args = input.find(" ") != string::npos ? input.substr(input.find(" ") - 1) : "";
+		if (commands.find(func_name) != commands.end())
+			commands[func_name](args);
 	}
 }
 
