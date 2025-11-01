@@ -10,26 +10,27 @@
 
 std::vector<storage::Item> storage::items = {};
 
-// Вспомогательный метод для расчёта максимальной длины среди имён, цен, количеств и весов
-void max_params_len(int* where) // Передаётся указатель, куда нужно сохранить значения
-{
+/**
+ * @brief Вспомогательный метод для получения максимальной длины среди имён, цен, количеств и весов. 
+ * @param ptr_result указатель, куда нужно сохранить итоговые значения.
+*/
+void max_params_len(int* ptr_result) {
 	int max_name_len = 0;
 	int max_price_len = 0;
 	int max_qty_len = 0;
 	int max_weight_len = 0;
 
-	for(storage::Item& item : storage::items)
-	{
+	for(storage::Item& item : storage::items) {
 		max_name_len = std::max(max_name_len, utils::utf_len(item.name));
 		max_price_len = std::max(max_price_len, utils::num_len(item.price));
 		max_qty_len = std::max(max_qty_len, utils::num_len(item.qty));
 		max_weight_len = std::max(max_weight_len, utils::num_len(item.weight));
 	}
 
-	where[0] = max_name_len;
-	where[1] = max_price_len;
-	where[2] = max_qty_len;
-	where[3] = max_weight_len;
+	ptr_result[0] = max_name_len;
+	ptr_result[1] = max_price_len;
+	ptr_result[2] = max_qty_len;
+	ptr_result[3] = max_weight_len;
 }
 
 void storage::show_data() {
@@ -75,7 +76,7 @@ void storage::show_data() {
 int storage::load_data(const std::string& name) {
 	
 	std::ifstream file;
-	std::string path = DATA_PATH + name;
+	std::string path = DATA_PATH + name + ".txt";
 	
 	file.open(path);
 	if(!file.is_open()) {

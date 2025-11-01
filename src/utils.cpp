@@ -5,49 +5,44 @@
 #include <cmath>
 #include <algorithm>
 
-int utils::utf_len(const std::string& str)
-{
+int utils::utf_len(const std::string& str) {
 	int len = 0;
-	for(int i=0; i < str.size(); ++i)
-	{
-		len += (str[i] != -48 && str[i] != -47 && str[i] != 0 ? 1 : 0);
+	for(char c : str) {
+		// Так как кирилица кодируется двумя байтами, а не одним, как латиница 
+		// (причём 1-й байт равен -47 или -48), мы не считаем 1-й байт.
+		// Также не считаем 0, так как он информирует об окончании строки.
+		len += (c != -48 && c != -47 && c != 0 ? 1 : 0);
 	}
 	return len;
 }
 
-int utils::num_len(int num)
-{
+int utils::num_len(int num) {
     num = std::abs(num);
-	if(num == 0){
+	if(num == 0) {
 		return 1;
 	}
 
 	int len = 0;
-	while(num > 0)
-	{
+	while(num > 0) {
 		num /= 10;
 		++len;
 	}
 	return len;
 }
 
-int utils::request(const std::string& header, const std::vector<std::string>& choice, const short alignment)
-{
+int utils::request(const std::string& header, const std::vector<std::string>& choice, const short alignment) {
 	int idx = -1;
 	int max_count = static_cast<int>(choice.size());
 
 	int max_str_len = 0;
-	for(short i=0; i < max_count; ++i)
-	{
-		int len = utils::utf_len(choice[i]);
+	for(const std::string& str : choice) {
+		int len = utils::utf_len(str);
 		max_str_len = (max_str_len < len ? len : max_str_len);
 	}
 
-	while(1 > idx || idx >= max_count + 1)
-	{
+	while(1 > idx || idx >= max_count + 1) {
 		
-		if(header != "")
-		{
+		if(header != "") {
 			int len = utils::utf_len(header);
 			int start_pad = utils::num_len(max_count);
 
@@ -56,8 +51,7 @@ int utils::request(const std::string& header, const std::vector<std::string>& ch
 			std::cout << l_pad << header << "\n";
 		}
 
-		for(int i=0; i < max_count; ++i)
-		{
+		for(int i=0; i < max_count; ++i) {
 			int len = utf_len(choice[i]);
 			std::string num_fill(num_len(max_count) - num_len(i), '0');
 
@@ -69,23 +63,21 @@ int utils::request(const std::string& header, const std::vector<std::string>& ch
 		std::cout << "- ";
 		std::cin >> idx;
 
-		if(std::cin.fail())
-		{
+		if(std::cin.fail()) {
 			std::cin.clear();
 			std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 			idx = -1;
 		}
-		if(1 > idx || idx >= max_count + 1)
-		{
+		if(1 > idx || idx >= max_count + 1) {
 			std::cout << "\033c"; // Очищает консоль
 			std::cout << "Несуществующий номер! Попробуйте заново...\n";
 			idx = -1;
 		}
 	}
+	
 	return idx;
 }
 
-int utils::randint(int min, int max)
-{
+int utils::randint(int min, int max) {
     return min + std::rand() % max;
 }
