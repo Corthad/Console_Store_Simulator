@@ -98,7 +98,7 @@ int storage::load_data(const std::string& name) {
 int storage::save_data(const std::string& name) {
 	
 	std::ofstream file;
-	std::string path = storage::DATA_PATH + name;
+	std::string path = storage::DATA_PATH + name + ".txt";
 
 	file.open(path);
 	if(!file.is_open()) {
