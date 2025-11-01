@@ -2,139 +2,110 @@
 
 #include <iostream>
 #include <fstream>
+#include <algorithm>
 #include <vector>
 
-/*
-Вывод ошибки, связанный с индексом списка.
+#include "config.h"
+#include "utils.h"
 
-Args:
+std::vector<storage::Item> storage::items = {};
 
- - `list_name` : std::string
-   Наименование списка-переменной.
- - `list_size` : unsigned int
-   Количество элементов в списке.
- - `id` : int
-   Идентификатор, из-за которого вызывается ошибка.
-
-Example:
-
->>> id_err("items", items.size(), 20); // Предположим, что значений в списке всего 10
->>> 'ERROR: [id] должен быть в пределах размера [items]! В итоге, [idx] = 20, [list_size] = 10.'
-*/
-void id_err(const std::string& list_name, unsigned list_size, int id)
+// Вспомогательный метод для расчёта максимальной длины среди имён, цен, количеств и весов
+void max_params_len(int* where) // Передаётся указатель, куда нужно сохранить значения
 {
-	std::cout << "ERROR: [id] должен быть в пределах размера [" << list_name << "]! ";
-	std::cout << "В итоге, [id] = " << id << ", ";
-	std::cout << "[list_size] = " << list_size << ".\n";
-}
+	int max_name_len = 0;
+	int max_price_len = 0;
+	int max_qty_len = 0;
+	int max_weight_len = 0;
 
-/*
-Вывод ошибки, связанный с неправильным значением переменной.
-
-Args:
-
- - `value_name` : std::string
-   Наименование значения-переменной.
- - `value` : int
-   Значение, из-за которого вызывается ошибка.
- - `ex` : std::string
-   Причина, из-за которой вызывается ошибка.
-
-Example:
-
->>> value_err("value", -1, "должен быть больше 0");
->>> 'ERROR: [value] должен быть больше 0! В итоге, [value] = -1.'
-*/
-void value_err(const std::string& value_name, int value, const std::string& ex)
-{
-	std::cout << "ERROR: [" << value_name << "] " << ex << "! ";
-	std::cout << "В итоге, [" << value_name << "] = " << value << ".\n";
-}
-
-/*
-Вывод списка предметов в консоль.
-
-Args:
-
- - `data` : std::vector<product>
-   Список предметов. См. `product`
-*/
-void show_storage(std::vector<product>& data)
-{
-	std::cout << "-------------------------\n";
-	for(int i=0; i < data.size(); ++i)
+	for(storage::Item& item : storage::items)
 	{
-		product &p = data[i];
-		std::cout << "ID: " << i << "\n";
-		std::cout << "Название: " << p.name << "\n";
-		std::cout << "Цена: " << p.price << "\n";
-		std::cout << "Количество: " << p.qty << "\n";
-		std::cout << "Вес: " << p.weight << "\n";
-		std::cout << "-------------------------\n";
+		max_name_len = std::max(max_name_len, utils::utf_len(item.name));
+		max_price_len = std::max(max_price_len, utils::num_len(item.price));
+		max_qty_len = std::max(max_qty_len, utils::num_len(item.qty));
+		max_weight_len = std::max(max_weight_len, utils::num_len(item.weight));
+	}
+
+	where[0] = max_name_len;
+	where[1] = max_price_len;
+	where[2] = max_qty_len;
+	where[3] = max_weight_len;
+}
+
+void storage::show_data() {
+	int* params_lens = new int[4];
+	max_params_len(params_lens);
+
+	int cell_width = std::max({params_lens[0], params_lens[1], params_lens[3]});
+	cell_width += params_lens[2] + 4;
+
+	delete[] params_lens;
+	
+	int remaining = storage::items.size();
+	int iters_count = (remaining / config::COLUMNS_COUNT) + static_cast<int>((remaining % config::COLUMNS_COUNT) > 0);
+	for(int i = 0; i < iters_count; ++i) {
+		std::string cells_row[4];
+		int cells_count = std::min(static_cast<unsigned>(remaining), config::COLUMNS_COUNT);
+		remaining -= config::COLUMNS_COUNT;
+
+		for(int j = 0; j < cells_count; ++j) {
+			int idx = config::COLUMNS_COUNT * i + j;
+			storage::Item& item = storage::items[idx];
+
+			std::string roof(cell_width - utils::num_len(item.qty) - 3, '_');
+			std::string pad(utils::num_len(item.qty) + 2, ' ');
+			cells_row[0] += " " + roof + pad + " ";
+
+			pad = std::string(cell_width - utils::num_len(item.qty) - utils::utf_len(item.name) - 3, ' ');
+			cells_row[1] += "|" + item.name + pad + "[" + std::to_string(item.qty) + "] ";
+
+			pad = std::string(cell_width - utils::num_len(item.weight) - 3, ' ');
+			cells_row[2] += "|" + pad + std::to_string(item.weight) + "г| ";
+
+			pad = std::string(cell_width - utils::num_len(idx) - utils::num_len(item.price) - 5, '_');
+			cells_row[3] += "[#" + std::to_string(idx) + "]" + pad + std::to_string(item.price) + "р| ";
+		}
+
+		for(std::string& row : cells_row) {
+			std::cout << row << "\n";
+		}
 	}
 }
 
-/*
-Загрузка игровых данных.
-    
-Args:
-
- - `path` : std::string (optional)
-   Путь к получаемым данным. По умолчанию: `PATH`.
-
-Returns:
-
- - `data` : std::vector<product>
-   Список предметов. См. `product`.
-*/
-std::vector<product> load_data(const std::string& path)
-{
+int storage::load_data(const std::string& name) {
+	
 	std::ifstream file;
+	std::string path = DATA_PATH + name;
+	
 	file.open(path);
-	if(!file.is_open())
-	{
+	if(!file.is_open()) {
 		std::cout << "ERROR: Не удалось получить данные с файла.\n";
-		return {}; // Пустой вектор
+		return 1;
 	}
 
-	std::vector<product> data;
-	product p;
-	while(file >> p.name >> p.price >> p.qty >> p.weight) // Пока в file есть данные, добавляем их в products
-	{
-		data.push_back(p);
+	storage::items = {};
+	storage::Item item;
+	// Пока в file есть данные, добавляем их в storage::items
+	while(file >> item.name >> item.price >> item.qty >> item.weight) {
+		storage::items.push_back(item);
 	}
 	file.close();
 	
-	return data;
+	return 0;
 }
 
-/*
-Сохранение игровых данных.
-    
-Args:
-
- - `data` : std::vector<product>
-   Список предметов. См. `product`.
- - `path` : std::string (optional)
-   Путь, куда сохранятся данные. По умолчанию: `PATH`.
-
-Returns:
-
- - `code` : int
-   Код завершения. `0` - успешно, `1` - ошибка сохранения файла.
-*/
-int save_data(std::vector<product>& data, const std::string& path)
-{
+int storage::save_data(const std::string& name) {
+	
 	std::ofstream file;
+	std::string path = storage::DATA_PATH + name;
+
 	file.open(path);
-	if(!file.is_open())
-	{
+	if(!file.is_open()) {
 		std::cout << "ERROR: Не удалось сохранить данные в файл.\n";
 		return 1;
 	}
 	
-	for(product item : data)
-	{
+	for(storage::Item& item : storage::items) {
 		file << item.name << " ";
 		file << item.price << " ";
 		file << item.qty << " ";
@@ -145,140 +116,104 @@ int save_data(std::vector<product>& data, const std::string& path)
 	return 0;
 }
 
-/*
-Увеличение количества предмета в списке.
-    
-Args:
+int storage::add_item(const std::string& name, unsigned price, unsigned qty, unsigned weight) {
+	
+	for(storage::Item& item : storage::items) {
+		if(item.name == name && item.price == price && item.weight == weight) {
+			item.qty += qty;
+			return 0;
+		}
+	}
 
- - `data` : std::vector<product>
-   Список предметов. См. `product`.
- - `id` : unsigned int
-   ID добавляемого предмета.
- - `count` : unsigned int (optional)
-   Количество предметов, которое добавится в список. По умолчанию: `1`.
-
-Returns:
-
- - `code` : int
-   Код завершения. `0` - успешно, `1` - некорректный id.
-*/
-int add_item(std::vector<product>& data, unsigned id, unsigned count)
-{
-	if(0 > id || id >= data.size())
-	{
-		id_err("items", data.size(), id);
+	if(qty == 0 || price == 0 || weight == 0) {
 		return 1;
 	}
-	
-	product &p = data[id];
-	p.qty += count;
+
+	storage::Item item {
+		name, price, qty, weight
+	};
+	storage::items.push_back(item);
+
 	return 0;
 }
 
-/*
-Уменьшение количества предмета в списке.
-    
-Args:
-
- - `data` : std::vector<product>
-   Список предметов. См. `product`.
- - `id` : unsigned int
-   ID убираемого предмета.
- - `count` : unsigned int (optional)
-   Количество предметов, которое уберётся из списка. По умолчанию: `1`.
-
-Returns:
-
- - `code` : int
-   Код завершения. `0` - успешно, `1` - некорректный id, `2` - итоговое значение отрицательно.
-*/
-int remove_item(std::vector<product>& data, unsigned id, unsigned count)
-{
-	if(0 > id || id >= data.size())
-	{
-		id_err("items", data.size(), id);
+int storage::del_item(unsigned id) {
+	
+	if(0 > id || id >= storage::items.size()) {
 		return 1;
 	}
 	
-	product &p = data[id];
-	int result = p.qty - count;
-	if(result < 0)
-	{
-		value_err("p.qty", result, "не может быть меньше 0");
-		return 2;
-	}
-	p.qty = result;
+	storage::items.erase(storage::items.begin() + id);
+
 	return 0;
 }
 
-/*
-Установка цены предмета.
-    
-Args:
-
- - `data` : std::vector<product>
-   Список предметов. См. `product`.
- - `id` : unsigned int
-   ID предмета, значение которого нужно изменить.
- - `price` : unsigned int
-   Новое значение цены.
-
-Returns:
-
- - `code` : int
-   Код завершения. `0` - успешно, `1` - некорректный id, `2` - значение за допустимыми пределами.
-*/
-int set_item_price(std::vector<product>& data, unsigned id, unsigned price)
-{
-	if(0 > id || id >= data.size())
-	{
-		id_err("items", data.size(), id);
+int storage::change_item_qty(unsigned id, unsigned count) {
+	
+	if(0 > id || id >= storage::items.size()) {
 		return 1;
 	}
 
-	if(price < 1)
-	{
-		value_err("price", price, "должен быть натуральным числом");
+	if(count == 0) {
 		return 2;
 	}
-	
-	product &p = data[id];
-	p.price = price;
+
+	storage::Item& item = storage::items[id];
+	int result = item.qty + count;
+	if(result < 0) {
+		return 2;
+	}
+	else if(result = 0) {
+		storage::del_item(id);
+	}
+
 	return 0;
 }
 
-/*
-Установка веса предмета.
-    
-Args:
-
- - `data` : std::vector<product>
-   Список предметов. См. `product`.
- - `id` : unsigned int
-   ID предмета, значение которого нужно изменить.
- - `weight` : unsigned int
-   Новое значение веса.
-
-Returns:
-
- - `code` : int
-   Код завершения. `0` - успешно, `1` - некорректный id, `2` - значение за допустимыми пределами.
-*/
-int set_item_weight(std::vector<product>& data, unsigned id, unsigned weight)
-{
-	if(0 > id || id >= data.size())
-	{
-		id_err("items", data.size(), id);
+int storage::set_item_price(unsigned id, unsigned price) {
+	
+	if(0 > id || id >= storage::items.size()) {
 		return 1;
 	}
 
-	if(weight < 1)
-	{
-		value_err("weight", weight, "должен быть натуральным числом");
+	if(price == 0) {
 		return 2;
 	}
 	
-	product &p = data[id];
-	p.weight = weight;
+	storage::Item& item = storage::items[id];
+	item.price = price;
+
+	for(int i = 0; i < storage::items.size(); ++i) {
+		storage::Item& other = storage::items[i];
+		if(other.name == item.name && other.price == item.price && other.weight == item.weight && i != id) {
+			other.qty += item.qty;
+			storage::del_item(id);
+		}
+	}
+
+	return 0;
+}
+
+int storage::set_item_weight(unsigned id, unsigned weight) {
+	
+	if(0 > id || id >= storage::items.size()) {
+		return 1;
+	}
+
+	if(weight == 0) {
+		return 2;
+	}
+	
+	storage::Item& item = storage::items[id];
+	item.weight = weight;
+
+	for(int i = 0; i < storage::items.size(); ++i) {
+		storage::Item& other = storage::items[i];
+		if(other.name == item.name && other.price == item.price && other.weight == item.weight && i != id) {
+			other.qty += item.qty;
+			storage::del_item(id);
+		}
+	}
+
 	return 0;
 }

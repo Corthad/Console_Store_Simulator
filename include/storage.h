@@ -1,25 +1,33 @@
-#pragma once
+#ifndef STORAGE_H
+#define STORAGE_H
 
 #include <string>
 #include <vector>
-#include <filesystem>
 
-struct product
-{
-    std::string name;
-    unsigned price;
-    unsigned qty;
-    unsigned weight;
-};
+namespace storage {
 
-const std::string PATH = std::filesystem::current_path().string() + "/../data/products.txt";
+    struct Item {
+        std::string name;
+        unsigned price;
+        unsigned qty;
+        unsigned weight;
+    };
 
-void show_storage(std::vector<product>& data);
+    extern std::vector<Item> items;
 
-std::vector<product> load_data(const std::string& path = PATH);
-int save_data(std::vector<product>& data, const std::string& path = PATH);
+    const std::string DATA_PATH = "../data/";
 
-int add_item(std::vector<product>& data, unsigned id, unsigned count = 1);
-int remove_item(std::vector<product>& data, unsigned id, unsigned count = 1);
-int set_item_price(std::vector<product>& data, unsigned id, unsigned price);
-int set_item_weight(std::vector<product>& data, unsigned id, unsigned weight);
+    void show_data();
+
+    int load_data(const std::string& name);
+    int save_data(const std::string& name);
+
+    int add_item(const std::string& name, unsigned price, unsigned qty, unsigned weight);
+    int del_item(unsigned id);
+    int change_item_qty(unsigned id, unsigned count);
+    int set_item_price(unsigned id, unsigned price);
+    int set_item_weight(unsigned id, unsigned weight);
+
+}
+
+#endif // STORAGE_H
