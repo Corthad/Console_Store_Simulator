@@ -126,7 +126,7 @@ int storage::add_item(const std::string& name, unsigned price, unsigned qty, uns
 		}
 	}
 
-	if(qty == 0 || price == 0 || weight == 0) {
+	if(name == "" || qty == 0 || price == 0 || weight == 0) {
 		return 1;
 	}
 
@@ -149,7 +149,7 @@ int storage::del_item(unsigned id) {
 	return 0;
 }
 
-int storage::change_item_qty(unsigned id, unsigned count) {
+int storage::change_item_qty(unsigned id, long long count) {
 	
 	if(0 > id || id >= storage::items.size()) {
 		return 1;
@@ -164,8 +164,11 @@ int storage::change_item_qty(unsigned id, unsigned count) {
 	if(result < 0) {
 		return 2;
 	}
-	else if(result = 0) {
+	else if(result == 0) {
 		storage::del_item(id);
+	}
+	else {
+		item.qty += count;
 	}
 
 	return 0;
