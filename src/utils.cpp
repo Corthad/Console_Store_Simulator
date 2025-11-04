@@ -37,7 +37,7 @@ int utils::request(const std::string& header, const std::vector<std::string>& ch
 	int max_str_len = 0;
 	for(const std::string& str : choice) {
 		int len = utils::utf_len(str);
-		max_str_len = (max_str_len < len ? len : max_str_len);
+		max_str_len = std::max(max_str_len, len);
 	}
 
 	while(1 > idx || idx >= max_count + 1) {
@@ -51,12 +51,12 @@ int utils::request(const std::string& header, const std::vector<std::string>& ch
 			std::cout << l_pad << header << "\n";
 		}
 
-		for(int i=0; i < max_count; ++i) {
+		for(int i = 0; i < max_count; ++i) {
 			int len = utf_len(choice[i]);
-			std::string num_fill(num_len(max_count) - num_len(i), '0');
+			std::string num_fill(num_len(max_count) - num_len(i), ' ');
 
-			std::string l_pad(std::max(max_str_len - len, 0)/2.0f * alignment, '-');
-			std::string r_pad(std::max(max_str_len - len + 1, 0)/2.0f * (2 - alignment), '-');
+			std::string l_pad(std::max(max_str_len - len, 0)/2.0f * alignment, ' ');
+			std::string r_pad(std::max(max_str_len - len + 1, 0)/2.0f * (2 - alignment), ' ');
 
 			std::cout << "[" << num_fill << i + 1 << "|" << l_pad << choice[i] << r_pad << "|" << num_fill << i + 1 << "]\n";
 		}
