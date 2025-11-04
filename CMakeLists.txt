@@ -1,4 +1,3 @@
-
 cmake_minimum_required(VERSION 3.15)	# Проверка версии CMake. Если версия установленой программы старее указаной, произайдёт аварийный выход.
 
 set(PROJECT_NAME Console_Store_Simulator)	# задать значение PROJECT_NAME	 
