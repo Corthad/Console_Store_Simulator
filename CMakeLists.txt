@@ -6,7 +6,7 @@ project("${PROJECT_NAME}")	# установить имя проекта
 
 set(CMAKE_CXX_STANDARD 20)	# устанавливаем 20 стандарт языка
 
-set(SOURCES src/main.cpp src/storage.cpp include/storage.h)
+set(SOURCES src/main.cpp src/storage.cpp include/storage.h src/utils.cpp include/utils.h include/config.h)
 
 add_executable("${PROJECT_NAME}" "${SOURCES}")	# Сказать программе, что должен быть исполняемый файл main.cpp и другие (по необходимости добавлять)
 include_directories(include)
