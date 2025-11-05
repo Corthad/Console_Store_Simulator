@@ -240,7 +240,6 @@ void game() {
                     break;
                 case 1: 
                     buyer::start_buyer();
-                    std::cout << "Этот раздел еще находится в разработке. Прошу проявить терпение.\n";
                     system("pause");
                     std::cout << "\033c";
                     break;
