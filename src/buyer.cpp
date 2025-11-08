@@ -136,105 +136,109 @@ void buyer::go_to_checkout() {
         }
     } while(!can_take_it);
     do {
+        total_price = 0;
         for (buyer::item &item : buyer::cart) {
             total_price += (item.price * item.qty);
         }
         std::cout << "Бумажных денег: " << buyer::inv.paper_money << ". Денег на карте: " << buyer::inv.digit_money << ".\n";
         std::cout << "Итоговая цена товара: " << total_price << ".\n";
-
-        std::cout << "Выберете способ оплаты.\n";
-        std::cout << "1. Наличный расчёт;\n";
-        std::cout << "2. Безналичный расчёт;\n";
-        std::cout << "3. Смешанный расчёт (приоритет: наличный);\n";
-        std::cout << "4. Смешанный расчёт (приоритет: безналичный);\n";
-        std::cin >> payment_type;
-
-        switch (payment_type) {
-            case 1:
-                if (try_pay_it[payment_type - 1]) {
-                    std::cout << "Вы уже пытались оплатить этим способом. У Вас недостаточно средств. Попробуйте другой тип оплаты.\n";
-                }
-                else {
-                    if (buyer::inv.paper_money >= total_price) {
-                        buyer::inv.paper_money -= total_price;
-                        can_pay_it = true;
-                    }
-                    else {
-                        std::cout << "У Вас недостаточно средств. Попробуйте другой тип оплаты.\n";
-                        try_pay_it[payment_type - 1] = 1;
-                    }
-
-                }
-                break;
-            case 2:
-                if (try_pay_it[payment_type - 1]) {
-                    std::cout << "Вы уже пытались оплатить этим способом. У Вас недостаточно средств. Попробуйте другой тип оплаты.\n";
-                }
-                else {
-                    if (buyer::inv.digit_money >= total_price) {
-                        buyer::inv.digit_money -= total_price;
-                        can_pay_it = true;
-                    }
-                    else {
-                        std::cout << "У Вас недостаточно средств. Попробуйте другой тип оплаты.\n";
-                        try_pay_it[payment_type - 1] = 1;
-                    }
-
-                }
-                break;
-            case 3:
-                if (try_pay_it[payment_type - 1]) {
-                    std::cout << "Вы уже пытались оплатить этим способом. У Вас недостаточно средств. Попробуйте другой тип оплаты.\n";
-                }
-                else {
-                        if (buyer::inv.paper_money >= total_price) {
-                            buyer::inv.paper_money -= total_price;
-                            can_pay_it = true;
-                        }
-                        else if ((buyer::inv.digit_money + buyer::inv.paper_money) >= total_price) {
-                            total_price -= buyer::inv.paper_money;
-                            buyer::inv.paper_money = 0;
-                            buyer::inv.digit_money -= total_price;
-                            can_pay_it = true;
-                        }
-                        else {
-                        std::cout << "У Вас недостаточно средств. Попробуйте другой тип оплаты.\n";
-                        try_pay_it[payment_type - 1] = 1;
-                        }
-                    }
-                break;
-            case 4:
-                if (try_pay_it[payment_type - 1]) {
-                    std::cout << "Вы уже пытались оплатить этим способом. У Вас недостаточно средств. Попробуйте другой тип оплаты.\n";
-                }
-                else {
-                        if (buyer::inv.digit_money >= total_price) {
-                            buyer::inv.digit_money -= total_price;
-                            can_pay_it = true;
-                        }
-                        else if ((buyer::inv.digit_money + buyer::inv.paper_money) >= total_price) {
-                            total_price -= buyer::inv.digit_money;
-                            buyer::inv.digit_money = 0;
-                            buyer::inv.paper_money -= total_price;
-                            can_pay_it = true;
-                        }
-                        else {
-                        std::cout << "У Вас недостаточно средств. Попробуйте другой тип оплаты.\n";
-                        try_pay_it[payment_type - 1] = 1;
-                        }
-                    }
-                break;
-            default:
-                std::cout << "Введен невеный тип оплаты.\n";
-        }
-        total_price = 0;
-        std::cout << "\033c";
         if (try_pay_it[2] || try_pay_it[3]) {
             std::cout << "У Вас недостаточно средств для оплаты текущей корзины. Необходимо убрать часть товаров из корзины.\n";
             buyer::del_from_cart();
             try_pay_it[4] = {0};
             total_price = 0;
         }
+        else {
+
+
+            std::cout << "Выберете способ оплаты.\n";
+            std::cout << "1. Наличный расчёт;\n";
+            std::cout << "2. Безналичный расчёт;\n";
+            std::cout << "3. Смешанный расчёт (приоритет: наличный);\n";
+            std::cout << "4. Смешанный расчёт (приоритет: безналичный);\n";
+            std::cin >> payment_type;
+
+            switch (payment_type) {
+                case 1:
+                    if (try_pay_it[payment_type - 1]) {
+                        std::cout << "Вы уже пытались оплатить этим способом. У Вас недостаточно средств. Попробуйте другой тип оплаты.\n";
+                    }
+                    else {
+                        if (buyer::inv.paper_money >= total_price) {
+                            buyer::inv.paper_money -= total_price;
+                            can_pay_it = true;
+                        }
+                        else {
+                            std::cout << "У Вас недостаточно средств. Попробуйте другой тип оплаты.\n";
+                            try_pay_it[payment_type - 1] = 1;
+                        }
+
+                    }
+                    break;
+                case 2:
+                    if (try_pay_it[payment_type - 1]) {
+                        std::cout << "Вы уже пытались оплатить этим способом. У Вас недостаточно средств. Попробуйте другой тип оплаты.\n";
+                    }
+                    else {
+                        if (buyer::inv.digit_money >= total_price) {
+                            buyer::inv.digit_money -= total_price;
+                            can_pay_it = true;
+                        }
+                        else {
+                            std::cout << "У Вас недостаточно средств. Попробуйте другой тип оплаты.\n";
+                            try_pay_it[payment_type - 1] = 1;
+                        }
+
+                    }
+                    break;
+                case 3:
+                    if (try_pay_it[payment_type - 1]) {
+                        std::cout << "Вы уже пытались оплатить этим способом. У Вас недостаточно средств. Попробуйте другой тип оплаты.\n";
+                    }
+                    else {
+                            if (buyer::inv.paper_money >= total_price) {
+                                buyer::inv.paper_money -= total_price;
+                                can_pay_it = true;
+                            }
+                            else if ((buyer::inv.digit_money + buyer::inv.paper_money) >= total_price) {
+                                total_price -= buyer::inv.paper_money;
+                                buyer::inv.paper_money = 0;
+                                buyer::inv.digit_money -= total_price;
+                                can_pay_it = true;
+                            }
+                            else {
+                            std::cout << "У Вас недостаточно средств. Попробуйте другой тип оплаты.\n";
+                            try_pay_it[payment_type - 1] = 1;
+                            }
+                        }
+                    break;
+                case 4:
+                    if (try_pay_it[payment_type - 1]) {
+                        std::cout << "Вы уже пытались оплатить этим способом. У Вас недостаточно средств. Попробуйте другой тип оплаты.\n";
+                    }
+                    else {
+                            if (buyer::inv.digit_money >= total_price) {
+                                buyer::inv.digit_money -= total_price;
+                                can_pay_it = true;
+                            }
+                            else if ((buyer::inv.digit_money + buyer::inv.paper_money) >= total_price) {
+                                total_price -= buyer::inv.digit_money;
+                                buyer::inv.digit_money = 0;
+                                buyer::inv.paper_money -= total_price;
+                                can_pay_it = true;
+                            }
+                            else {
+                            std::cout << "У Вас недостаточно средств. Попробуйте другой тип оплаты.\n";
+                            try_pay_it[payment_type - 1] = 1;
+                            }
+                        }
+                    break;
+                default:
+                    std::cout << "Введен невеный тип оплаты.\n";
+            }
+        }
+        system("pause");
+        std::cout << "\033c";
         if (can_pay_it) {
             buyer::cart = {};
             std::cout << "Ура. Вы успешно совершили покупку.\n";
