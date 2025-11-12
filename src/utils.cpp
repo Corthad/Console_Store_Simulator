@@ -4,6 +4,7 @@
 #include <cstdlib>
 #include <cmath>
 #include <algorithm>
+#include <limits>
 
 int utils::utf_len(const std::string& str) {
 	int len = 0;
@@ -80,4 +81,28 @@ int utils::request(const std::string& header, const std::vector<std::string>& ch
 
 int utils::randint(int min, int max) {
     return min + std::rand() % max;
+}
+
+int utils::save_int_input(const std::string& message, const int& min_value, const int& max_value) {
+	int value;
+	while (true) {
+		std::cout << "\033c";
+		std::cout << message;
+		if (std::cin >> value) {
+			if (value >= min_value && value <= max_value) {
+				std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+				return value;
+			}
+			else {
+				std::cout << "Введенное значение находится вне диапазона выбора. Введите значение из диапазона от " << min_value << " до " << max_value << ".\n";
+				system("pause");
+			}
+		}
+		else {
+				std::cout << "Введен некорректный тип данных или введенное значение находится вне диапазона этого типа.\n";
+				system("pause");
+		}
+        std::cin.clear();
+		std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+	}	
 }

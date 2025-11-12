@@ -2,6 +2,7 @@
 #define CONSTANTS_H
 
 #include <random>
+#include <limits>
 
 namespace utils {
     // Константы для выравнивания текста
@@ -28,6 +29,8 @@ namespace utils {
 
     // Случайное число в установленном диапазоне.
     int randint(int min, int max);
+
+int save_int_input(const std::string& message, const int& min_value = INT_MIN, const int& max_value = INT_MAX);
 }
 
 #endif // CONSTANTS_H
