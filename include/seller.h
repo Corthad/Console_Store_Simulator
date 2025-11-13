@@ -1,4 +1,10 @@
 #include <string>
 using namespace std;
 
-void serve_buyer();
+namespace seller
+{
+	void start_seller();
+
+	extern int paper_money;
+	extern int digit_money;
+}
