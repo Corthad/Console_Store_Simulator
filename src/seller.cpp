@@ -1,4 +1,4 @@
-#include <string>
+п»ї#include <string>
 #include <iostream>
 #include <sstream>
 #include <fstream>
@@ -24,8 +24,8 @@ namespace seller
 		void(*func)(vector<string>);
 	};
 
-	// ПЕРЕНЕСТИ В УТИЛИТЫ
-	// разделить строку на вектор строк
+	// РџР•Р Р•РќР•РЎРўР Р’ РЈРўРР›РРўР«
+	// СЂР°Р·РґРµР»РёС‚СЊ СЃС‚СЂРѕРєСѓ РЅР° РІРµРєС‚РѕСЂ СЃС‚СЂРѕРє
 	std::vector<std::string> split(const std::string& str, char delimiter = ' ') {
 		std::vector<std::string> tokens;
 		std::string token;
@@ -38,14 +38,14 @@ namespace seller
 		return tokens;
 	}
 
-	// загрузить данные о прибыли из тхт
+	// Р·Р°РіСЂСѓР·РёС‚СЊ РґР°РЅРЅС‹Рµ Рѕ РїСЂРёР±С‹Р»Рё РёР· С‚С…С‚
 	void load_data() {
 		ifstream file;
 		string path = "data/seller.txt";
 
 		file.open(path);
 		if (!file.is_open()) {
-			std::cout << "ERROR: Не удалось получить данные с файла.\n";
+			std::cout << "ERROR: РќРµ СѓРґР°Р»РѕСЃСЊ РїРѕР»СѓС‡РёС‚СЊ РґР°РЅРЅС‹Рµ СЃ С„Р°Р№Р»Р°.\n";
 		}
 		else {
 			file >> paper_money >> digit_money;
@@ -53,14 +53,14 @@ namespace seller
 		file.close();
 	}
 
-	// сохранить данные о прибыли в тхт
+	// СЃРѕС…СЂР°РЅРёС‚СЊ РґР°РЅРЅС‹Рµ Рѕ РїСЂРёР±С‹Р»Рё РІ С‚С…С‚
 	void save_data(vector<string> args) {
 		std::ofstream file;
 		std::string path = "data/seller.txt";
 
 		file.open(path);
 		if (!file.is_open()) {
-			std::cout << "ERROR: Не удалось cохранить данные с файла.\n";
+			std::cout << "ERROR: РќРµ СѓРґР°Р»РѕСЃСЊ cРѕС…СЂР°РЅРёС‚СЊ РґР°РЅРЅС‹Рµ СЃ С„Р°Р№Р»Р°.\n";
 		}
 		else {
 			file << paper_money << " " << digit_money << " ";
@@ -68,7 +68,7 @@ namespace seller
 		file.close();
 	}
 
-	// продать все пробитые товары
+	// РїСЂРѕРґР°С‚СЊ РІСЃРµ РїСЂРѕР±РёС‚С‹Рµ С‚РѕРІР°СЂС‹
 	void sell_products(vector<string> args)
 	{
 		//served = true;
@@ -80,26 +80,26 @@ namespace seller
 		products.clear();
 	}
 
-	// добавить товар на склад
+	// РґРѕР±Р°РІРёС‚СЊ С‚РѕРІР°СЂ РЅР° СЃРєР»Р°Рґ
 	void add_product(vector<string> args)
 	{
 		storage::add_item(args[0], stoi(args[1], nullptr, 10), stoi(args[2], nullptr, 10), stoi(args[3], nullptr, 10));
 	}
 
-	// показать товары на складе
+	// РїРѕРєР°Р·Р°С‚СЊ С‚РѕРІР°СЂС‹ РЅР° СЃРєР»Р°РґРµ
 	void show_products(vector<string> args)
 	{
 		storage::show_data();
 	}
 
-	// показать деньги
+	// РїРѕРєР°Р·Р°С‚СЊ РґРµРЅСЊРіРё
 	void show_money(vector<string> args)
 	{
-		cout << "Наличные: " << paper_money << endl;
-		cout << "На счету: " << digit_money << endl;
+		cout << "РќР°Р»РёС‡РЅС‹Рµ: " << paper_money << endl;
+		cout << "РќР° СЃС‡РµС‚Сѓ: " << digit_money << endl;
 	}
 
-	// пробить товар/положить в корзину
+	// РїСЂРѕР±РёС‚СЊ С‚РѕРІР°СЂ/РїРѕР»РѕР¶РёС‚СЊ РІ РєРѕСЂР·РёРЅСѓ
 	// args: index, quantity
 	void add_to_cart(vector<string> args)
 	{
@@ -112,7 +112,7 @@ namespace seller
 		}
 	}
 
-	// убрать товар из корзины
+	// СѓР±СЂР°С‚СЊ С‚РѕРІР°СЂ РёР· РєРѕСЂР·РёРЅС‹
 	// args: index, quantity
 	void del_from_cart(vector<string> args)
 	{
@@ -127,10 +127,10 @@ namespace seller
 		}
 	}
 
-	// вектор команд
-	vector<command> commands = { {"Добавить продукт", "Айди, Кол-во", add_product}, {"Продать пробитые товары", "", sell_products}, {"Показать товары", "", show_products}, {"Пробить товар", "Айди, Кол-во", add_to_cart},{"Сохранить данные о прибыли", "", save_data},{"Показать деньги", "", show_money},{"Удалить товар из корзины", "Айди, Кол-во", del_from_cart} };
+	// РІРµРєС‚РѕСЂ РєРѕРјР°РЅРґ
+	vector<command> commands = { {"Р”РѕР±Р°РІРёС‚СЊ РїСЂРѕРґСѓРєС‚", "РђР№РґРё, РљРѕР»-РІРѕ", add_product}, {"РџСЂРѕРґР°С‚СЊ РїСЂРѕР±РёС‚С‹Рµ С‚РѕРІР°СЂС‹", "", sell_products}, {"РџРѕРєР°Р·Р°С‚СЊ С‚РѕРІР°СЂС‹", "", show_products}, {"РџСЂРѕР±РёС‚СЊ С‚РѕРІР°СЂ", "РђР№РґРё, РљРѕР»-РІРѕ", add_to_cart},{"РЎРѕС…СЂР°РЅРёС‚СЊ РґР°РЅРЅС‹Рµ Рѕ РїСЂРёР±С‹Р»Рё", "", save_data},{"РџРѕРєР°Р·Р°С‚СЊ РґРµРЅСЊРіРё", "", show_money},{"РЈРґР°Р»РёС‚СЊ С‚РѕРІР°СЂ РёР· РєРѕСЂР·РёРЅС‹", "РђР№РґРё, РљРѕР»-РІРѕ", del_from_cart} };
 
-	// начать поведение продавца
+	// РЅР°С‡Р°С‚СЊ РїРѕРІРµРґРµРЅРёРµ РїСЂРѕРґР°РІС†Р°
 	void start_seller()
 	{
 		load_data();
@@ -155,7 +155,7 @@ namespace seller
 				vector<string> args = {};
 				if (commands[cmdNum - 1].argsDescription != "")
 				{
-					cout << "Введите аргументы: " << commands[cmdNum - 1].argsDescription << endl;
+					cout << "Р’РІРµРґРёС‚Рµ Р°СЂРіСѓРјРµРЅС‚С‹: " << commands[cmdNum - 1].argsDescription << endl;
 					string input;
 					cin.ignore();
 					getline(cin, input);
