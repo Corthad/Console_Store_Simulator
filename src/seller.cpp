@@ -1,4 +1,4 @@
-﻿#include <string>
+#include <string>
 #include <iostream>
 #include <sstream>
 #include <fstream>
@@ -133,9 +133,8 @@ namespace seller
 	// начать поведение продавца
 	void start_seller()
 	{
-		load_data();
+		//load_data();
 		storage::load_data();
-		setlocale(LC_ALL, "");
 		paper_money = 0;
 		digit_money = 0;
 
