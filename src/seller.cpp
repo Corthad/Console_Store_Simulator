@@ -41,7 +41,7 @@ namespace seller
 	// загрузить данные о прибыли из тхт
 	void load_data() {
 		ifstream file;
-		string path = "data/seller.txt";
+		string path = "../data/seller.txt";
 
 		file.open(path);
 		if (!file.is_open()) {
@@ -56,7 +56,7 @@ namespace seller
 	// сохранить данные о прибыли в тхт
 	void save_data(vector<string> args) {
 		std::ofstream file;
-		std::string path = "data/seller.txt";
+		std::string path = "../data/seller.txt";
 
 		file.open(path);
 		if (!file.is_open()) {
