@@ -169,7 +169,12 @@ namespace seller
 					getline(cin, input);
 					args = split(input, ' ');
 				}
-				commands[cmdNum - 1].func(args);
+				
+				// кол-во данных аргументов == кол-ву описанных аргументов в описании
+				if (args.size() == split(commands[cmdNum - 1].argsDescription, ',').size())
+					commands[cmdNum - 1].func(args);
+				else
+					cout << "НЕВЕРНОЕ КОЛИЧЕСТВО АРГУМЕНТОВ" << endl;
 			}
 			system("pause");
 			std::cout << "\033c";
