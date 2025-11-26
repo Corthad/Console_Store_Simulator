@@ -39,9 +39,9 @@ namespace seller
 	}
 
 	// загрузить данные о прибыли из тхт
-	void load_data() {
+	void load_data(vector<string> args) {
 		ifstream file;
-		string path = "../data/seller.txt";
+		string path = "data/seller.txt";
 
 		file.open(path);
 		if (!file.is_open()) {
@@ -56,7 +56,7 @@ namespace seller
 	// сохранить данные о прибыли в тхт
 	void save_data(vector<string> args) {
 		std::ofstream file;
-		std::string path = "../data/seller.txt";
+		std::string path = "data/seller.txt";
 
 		file.open(path);
 		if (!file.is_open()) {
@@ -140,7 +140,7 @@ namespace seller
 	vector<command> commands = { 
 		{"Добавить продукт", "Айди, Кол-во", add_product},           {"Продать пробитые товары", "", sell_products}, {"Показать товары", "", show_products}, 
 		{"Пробить товар", "Айди, Кол-во", add_to_cart},              {"Сохранить данные о прибыли", "", save_data},  {"Показать деньги", "", show_money},
-		{"Удалить товар из корзины", "Айди, Кол-во", del_from_cart}, {"Показать товары в корзине", "", show_cart}
+		{"Удалить товар из корзины", "Айди, Кол-во", del_from_cart}, {"Показать товары в корзине", "", show_cart},   {"Загрузить данные о прибыли", "", load_data}
 	};
 
 	// начать поведение продавца
