@@ -99,6 +99,15 @@ namespace seller
 		cout << "На счету: " << digit_money << endl;
 	}
 
+	// показать товары в корзине
+	void show_cart(vector<string> args)
+	{
+		for (auto& pair : products)
+		{
+			cout << storage::items[pair.first].name << ": " << pair.second << endl;
+		}
+	}
+
 	// пробить товар/положить в корзину
 	// args: index, quantity
 	void add_to_cart(vector<string> args)
@@ -128,7 +137,7 @@ namespace seller
 	}
 
 	// вектор команд
-	vector<command> commands = { {"Добавить продукт", "Айди, Кол-во", add_product}, {"Продать пробитые товары", "", sell_products}, {"Показать товары", "", show_products}, {"Пробить товар", "Айди, Кол-во", add_to_cart},{"Сохранить данные о прибыли", "", save_data},{"Показать деньги", "", show_money},{"Удалить товар из корзины", "Айди, Кол-во", del_from_cart} };
+	vector<command> commands = { {"Добавить продукт", "Айди, Кол-во", add_product}, {"Продать пробитые товары", "", sell_products}, {"Показать товары", "", show_products}, {"Пробить товар", "Айди, Кол-во", add_to_cart},{"Сохранить данные о прибыли", "", save_data},{"Показать деньги", "", show_money},{"Удалить товар из корзины", "Айди, Кол-во", del_from_cart}, {"Показать товары в корзине", "", show_cart} };
 
 	// начать поведение продавца
 	void start_seller()
