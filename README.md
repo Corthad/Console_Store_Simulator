@@ -30,3 +30,6 @@
 - **include/events.h**
 - **include/buyer_bot.h**
 - **include/seller_bot.h**
+
+## Карта проекта
+https://www.figma.com/board/8IMs9QxUbVVgVKUBt9WrXB/Console_Store_Simulator?node-id=0-1&p=f&t=oCv5BmY6kczcO0M6-0
