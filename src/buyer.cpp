@@ -1,11 +1,14 @@
 #include "buyer.h"
-#include "storage.h"
 
-#include <fstream>
 #include <iostream>
+#include <fstream>
+#include <vector>
 
+#include "storage.h"
+#include "basics.h"
+#include "utils.h"
 
-std::vector<buyer::item> buyer::cart = {};
+std::vector<Item> buyer::cart = {};
 buyer::inventory buyer::inv;
 
 void buyer::load_data() {
@@ -43,7 +46,7 @@ void buyer::view_inventory() {
 
 void buyer::view_cart() {
     for (int i = 0; i < buyer::cart.size(); ++i) {
-        buyer::item item = buyer::cart[i];
+        Item item = buyer::cart[i];
         std::cout << i << ". " << item.name << " " << item.price << " " << item.qty << " " << item.weight << "\n";
     }
 }
@@ -53,7 +56,7 @@ void buyer::add_to_cart() {
     bool match_found;
     while (true) {
         match_found = false;
-        storage::show_data();
+        utils::show_data(buyer::cart);
         std::cout << "Для выхода из этого режима введите значение '-1'. \n";
         std::cout << "Чтобы добавить товар в корзину, введите его индекс: ";
         std::cin >> id_item;
@@ -61,14 +64,14 @@ void buyer::add_to_cart() {
             break;
         }
         else {
-            storage::Item storage_item = storage::items[id_item];
-            buyer::item item = {
+            Item storage_item = storage::items[id_item];
+            Item item = {
                 storage_item.name,
                 storage_item.price,
                 1,
                 storage_item.weight 
             };
-            for (buyer::item& item : buyer::cart) {
+            for (Item& item : buyer::cart) {
                 if (item.name == storage_item.name && item.price == storage_item.price && item.weight == storage_item.weight) {
                     item.qty += 1;
                     match_found = true;
@@ -94,7 +97,7 @@ void buyer::del_from_cart(bool one_time_launch) {
             break;
         }
         else {
-            buyer::item item = buyer::cart[id_item];
+            Item item = buyer::cart[id_item];
             storage::add_item(item.name, item.price, 1, item.weight);
             if (item.qty == 1) {
                 buyer::cart.erase(buyer::cart.begin() + id_item);
@@ -116,7 +119,7 @@ void buyer::go_to_checkout() {
     bool try_pay_it[4] {0};   
     do {
         total_weight = 0;
-        for (buyer::item &item : buyer::cart) {
+        for (Item &item : buyer::cart) {
             total_weight += (item.weight * item.qty);
         }
         if (total_weight > buyer::inv.hand_capacity) {
@@ -137,7 +140,7 @@ void buyer::go_to_checkout() {
     } while(!can_take_it);
     do {
         total_price = 0;
-        for (buyer::item &item : buyer::cart) {
+        for (Item &item : buyer::cart) {
             total_price += (item.price * item.qty);
         }
         std::cout << "Бумажных денег: " << buyer::inv.paper_money << ". Денег на карте: " << buyer::inv.digit_money << ".\n";

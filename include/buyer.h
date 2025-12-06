@@ -1,24 +1,20 @@
-#ifndef BUYER_H // Если макрос BUYER_H не определён...
-#define BUYER_H // ...определить его и продолжить компиляцию.
+#ifndef BUYER_H
+#define BUYER_H
 
 #include <string>
 #include <vector>
 
+#include "basics.h"
+
 namespace buyer {
+
     struct inventory {
         int paper_money;
         int digit_money;
         int hand_capacity;
     };
 
-    struct item {
-        std::string name;
-        unsigned price;
-        unsigned qty;
-        unsigned weight;
-    };
-
-    extern std::vector<item> cart;
+    extern std::vector<Item> cart;
     extern inventory inv;
 
     const std::string buyer_activity[10] {
@@ -45,4 +41,4 @@ namespace buyer {
     void go_to_checkout();
 }
 
-#endif // Конец блока #ifndef
+#endif
