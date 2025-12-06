@@ -2,7 +2,7 @@
 #define CONFIG_H
 
 namespace config {
-    // ITEMS
+    //! ITEMS
     const unsigned COLUMNS_COUNT = 3;
     const unsigned ITEMS_COUNT = 5;
 
@@ -19,7 +19,7 @@ namespace config {
         {200, 1'000}, {500, 1'000}
     };
 
-    // SUPPLIER
+    //! SUPPLIER
     const unsigned SUPPLIERS_COUNT = 7;
     const char SUPPLIERS_NAME[SUPPLIERS_COUNT][30] {
         "EcoFood", "Prime Pantry Partners", 
@@ -27,7 +27,7 @@ namespace config {
         "WOF Inc.", "Health Basket", "Food Treasure"
     };
 
-    // BUYER
+    //! BUYER
     const unsigned BUYERS_COUNT = 10;
     const char BUYERS_NAME[BUYERS_COUNT][30] {
         "John", "George", "Anton", "Alice",
@@ -35,7 +35,7 @@ namespace config {
         "Subaru", "Helga"
     };
 
-    // SELLER
+    //! SELLER
     const unsigned SELLERS_COUNT = 5;
     const char SELLERS_NAME[SELLERS_COUNT][30] {
         "Astroberry", "Star", "Victorial",

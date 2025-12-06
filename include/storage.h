@@ -4,31 +4,23 @@
 #include <string>
 #include <vector>
 
+#include "basics.h"
+
 namespace storage {
-
-    struct Item {
-        std::string name;
-        unsigned price;
-        unsigned qty;
-        unsigned weight;
-    };
-
     extern std::vector<Item> items;
 
     const std::string DATA_PATH = "../data/";
     const std::string DATA_NAME = "products";
 
-    // Отображение предметов в табличном виде.
-    void show_data();
-
-    // Загрузка данных по имени. По умолчанию `name` = "products".
+    /* Загрузка данных по имени. По умолчанию `name` = "products". */
     int load_data(const std::string& name = DATA_NAME);
-    // Сохранение данных по имени. По умолчанию `name` = "products".
+
+    /* Сохранение данных по имени. По умолчанию `name` = "products". */
     int save_data(const std::string& name = DATA_NAME);
 
     int add_item(const std::string& name, unsigned price, unsigned qty, unsigned weight);
     int del_item(unsigned id);
-    int change_item_qty(unsigned id, long long count);
+    int change_item_qty(unsigned id, int count);
     int set_item_price(unsigned id, unsigned price);
     int set_item_weight(unsigned id, unsigned weight);
 }

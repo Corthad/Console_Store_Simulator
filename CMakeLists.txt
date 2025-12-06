@@ -1,12 +1,13 @@
+# Проверка версии CMake. Если версия установленой программы старее указаной, произайдёт аварийный выход.
+cmake_minimum_required(VERSION 3.28)
 
-cmake_minimum_required(VERSION 3.15)	# Проверка версии CMake. Если версия установленой программы старее указаной, произайдёт аварийный выход.
+set(PROJECT_NAME Console_Store_Simulator)
+project("${PROJECT_NAME}")
 
-set(PROJECT_NAME Console_Store_Simulator)	# задать значение PROJECT_NAME	 
-project("${PROJECT_NAME}")	# установить имя проекта
+set(CMAKE_CXX_STANDARD 20)
 
-set(CMAKE_CXX_STANDARD 20)	# устанавливаем 20 стандарт языка
+file(GLOB_RECURSE SOURCES "src/*.cpp") # Рекурсивный поиск всех .cpp файлов в src
+file(GLOB_RECURSE INCLUDES "include/*.h") # Рекурсивный поиск всех .h файлов в include
 
-set(SOURCES src/main.cpp src/storage.cpp include/storage.h src/utils.cpp include/utils.h include/config.h)
-
-add_executable("${PROJECT_NAME}" "${SOURCES}")	# Сказать программе, что должен быть исполняемый файл main.cpp и другие (по необходимости добавлять)
+add_executable("${PROJECT_NAME}" "${SOURCES}" "${INCLUDES}")
 include_directories(include)
