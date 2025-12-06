@@ -265,7 +265,7 @@ void buyer::start_buyer() {
     bool exit_to_main_menu = false;
     storage::load_data();
 
-    while (true) {
+    while (!exit_to_main_menu) {
         for (const std::string &row : buyer::buyer_activity) {
             std::cout << row << "\n";
         }
@@ -306,8 +306,5 @@ void buyer::start_buyer() {
         }
         system("pause");
         std::cout << "\033c";
-        if (exit_to_main_menu) {
-            break;
-        }
     }
 }
