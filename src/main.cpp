@@ -1,15 +1,12 @@
-#include <iostream>
-#include <vector>
-#include <limits>
 #include <windows.h>
-
-#include "seller.h"
+#include "game.h"
 
 int main() {
     SetConsoleCP(65001);
     SetConsoleOutputCP(65001);
+    
+    //Запуск игры
+    game();
 
-    // Запуск "Продавца"
-    seller::loop();
     return 0;
 }

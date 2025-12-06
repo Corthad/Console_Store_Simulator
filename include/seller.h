@@ -19,6 +19,8 @@ namespace seller {
     };
 
     int loop();
+
+    void start_seller();
 }
 
 #endif // SELLER_H

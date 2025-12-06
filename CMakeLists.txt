@@ -9,5 +9,5 @@ set(CMAKE_CXX_STANDARD 20)
 file(GLOB_RECURSE SOURCES "src/*.cpp") # Рекурсивный поиск всех .cpp файлов в src
 file(GLOB_RECURSE INCLUDES "include/*.h") # Рекурсивный поиск всех .h файлов в include
 
-add_executable("${PROJECT_NAME}" "${SOURCES}" "${INCLUDES}")
+add_executable("${PROJECT_NAME}" "${SOURCES}" "${HEADERS}" "${INCLUDES}")
 include_directories(include)
