@@ -179,6 +179,7 @@ int seller::loop() {
                 break;
             }
         }
+        utils::sort(storage::items, SortField::item_price);
         system("pause");
         std::cout << "\033c";
     }

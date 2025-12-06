@@ -133,6 +133,98 @@ long long utils::get_num(const std::string& header) {
 	}
 }
 
+bool utils::compare_items_fields(const Item& first, const Item& second, SortField field, Operator op) {
+	bool condition;
+	switch(field) {
+		case SortField::item_name: {
+			if(op == Operator::less) {
+				condition = first.name < second.name;
+			}
+			else if(op == Operator::bigger) {
+				condition = first.name > second.name;
+			}
+			else {
+				condition = first.name == second.name;
+			}
+			break;
+		}
+		case SortField::item_price: {
+			if(op == Operator::less) {
+				condition = first.price < second.price;
+			}
+			else if(op == Operator::bigger) {
+				condition = first.price > second.price;
+			}
+			else {
+				condition = first.price == second.price;
+			}
+			break;
+		}
+		case SortField::item_qty: {
+			if(op == Operator::less) {
+				condition = first.qty < second.qty;
+			}
+			else if(op == Operator::bigger) {
+				condition = first.qty > second.qty;
+			}
+			else {
+				condition = first.qty == second.qty;
+			}
+			break;
+		}
+		case SortField::item_weight: {
+			if(op == Operator::less) {
+				condition = first.weight < second.weight;
+			}
+			else if(op == Operator::bigger) {
+				condition = first.weight > second.weight;
+			}
+			else {
+				condition = first.weight == second.weight;
+			}
+			break;
+		}
+	}
+	return condition;
+}
+
+void utils::sort(std::vector<Item>& data, SortField _sort_field) {
+	utils::sort(0, data.size() - 1, data, _sort_field);
+}
+
+void utils::sort(int start, int end, std::vector<Item>& data, SortField _sort_field) {
+	if(start >= end) {
+		return;
+	}
+
+	int idx = utils::randint(start, end);
+	Item& pivot = data[idx];
+
+	int l = start - 1;
+	int r = end + 1;
+	while(true) {
+		do {
+			l++;
+		} 
+		while(compare_items_fields(data[l], pivot, _sort_field, Operator::less));
+
+		do {
+			r--;
+		} 
+		while(compare_items_fields(data[r], pivot, _sort_field, Operator::bigger));
+
+		if(l >= r) {
+			break;
+		}
+		std::swap(data[l], data[r]);
+	}
+
+	l = r++; // Сначала установится l = r, затем r += 1
+	
+	utils::sort(start, l, data, _sort_field);
+	utils::sort(r, end, data, _sort_field);
+}
+
 int utils::request(const std::string& header, const std::vector<std::string>& choice, const char alignment) {
 	int idx = -1;
 	int max_count = choice.size();
@@ -241,5 +333,5 @@ void utils::show_data(std::vector<Item>& items) {
 }
 
 int utils::randint(int min, int max) {
-    return (std::rand() * std::rand()) % max + min;
+    return (std::rand() * std::rand()) % (max - min + 1) + min;
 }

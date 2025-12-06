@@ -4,6 +4,21 @@
 #include <vector>
 #include <string>
 
+/* Перечисление способов сравнения (больше, меньше, равно ...) */
+enum Operator {
+    equal,
+    less,
+    bigger
+};
+
+/* Перечисление полей для сортировки */
+enum SortField {
+    item_name,
+    item_price,
+    item_qty,
+    item_weight
+};
+
 /* Предмет - товар */
 struct Item {
     std::string name;

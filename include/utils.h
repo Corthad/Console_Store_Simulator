@@ -34,6 +34,12 @@ namespace utils {
     long long get_num(const std::string& header = "");
     unsigned long long get_unum(const std::string& header = "");
 
+    /* Сравнение двух `Item` по одному из параметров */
+    bool compare_items_fields(const Item& first, const Item& second, SortField field, Operator op);
+
+    void sort(std::vector<Item>& data, SortField _sort_field);
+    void sort(int start, int end, std::vector<Item>& data, SortField _sort_field);
+
     /**
      * @brief Создание окна с выбором.
      * 
