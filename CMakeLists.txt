@@ -1,5 +1,4 @@
-# Проверка версии CMake. Если версия установленой программы старее указаной, произайдёт аварийный выход.
-cmake_minimum_required(VERSION 3.28)
+cmake_minimum_required(VERSION 3.28) # Проверка версии CMake. Если версия установленой программы старее указаной, произайдёт аварийный выход.
 
 set(PROJECT_NAME Console_Store_Simulator)
 project("${PROJECT_NAME}")
