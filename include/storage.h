@@ -1,36 +1,27 @@
 #ifndef STORAGE_H
 #define STORAGE_H
 
-#include <string>
-#include <vector>
+#include "structures.h"
 
-namespace storage {
+// Инициализация и работа с данными
+void initialize();
+void save_to_file();
+void load_from_file();
+void load_all_products_from_file();
+void show_all_products_list();
 
-    struct Item {
-        std::string name;
-        unsigned price;
-        unsigned qty;
-        unsigned weight;
-    };
+// Функции для товаров
+void add_product();
+void show_products();
+void search_product();
+void sort_products(int criteria);
+int find_product_by_name(const char* name);
+void print_product(const product& p);
+void print_product_customer_view(const product& p);
+void print_base_product(const base_product& p);
 
-    extern std::vector<Item> items;
-
-    const std::string DATA_PATH = "../data/";
-    const std::string DATA_NAME = "products";
-
-    // Отображение предметов в табличном виде.
-    void show_data();
-
-    // Загрузка данных по имени. По умолчанию `name` = "products".
-    int load_data(const std::string& name = DATA_NAME);
-    // Сохранение данных по имени. По умолчанию `name` = "products".
-    int save_data(const std::string& name = DATA_NAME);
-
-    int add_item(const std::string& name, unsigned price, unsigned qty, unsigned weight);
-    int del_item(unsigned id);
-    int change_item_qty(unsigned id, long long count);
-    int set_item_price(unsigned id, unsigned price);
-    int set_item_weight(unsigned id, unsigned weight);
-}
+// Утилиты для ввода
+bool is_valid_markup(float markup);
+float get_markup_percentage();
 
 #endif // STORAGE_H
