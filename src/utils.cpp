@@ -1,337 +1,259 @@
 #include "utils.h"
 
 #include <iostream>
+#include <string>
+#include <math.h>
 #include <cstdlib>
-#include <cmath>
-#include <algorithm>
+#include <windows.h>
 
-#include "storage.h"
-#include "config.h"
-#include "basics.h"
 
-// TODO: Добавить проверки на тип введённых данных от пользователя (число/строка)
+using namespace std;
 
-int utils::utf_len(const std::string& str) {
-	int len = 0;
-	for(char c : str) {
-		// Так как кирилица кодируется двумя байтами, а не одним, как латиница 
-		// (причём 1-й байт равен -47 или -48), мы не считаем 1-й байт.
-		// Также не считаем 0, так как он информирует об окончании строки.
-		len += (c != -48 && c != -47 && c != 0 ? 1 : 0);
-	}
-	return len;
+void clean_screen() {
+    cout << "\033c";
 }
 
-int utils::num_len(int num) {
-    num = std::abs(num);
-	if(num == 0) {
-		return 1;
-	}
-
-	int len = 0;
-	while(num > 0) {
-		num /= 10;
-		++len;
-	}
-	return len;
+void pause_screen() {
+    system("pause");
+    clean_screen();
 }
 
-std::string utils::num2str(long long num) {
-    int len = utils::num_len(num);
-    std::string str(len, '0');
-    if(num < 0) {
-        str += "-";
+void print_table_cell(int width, const char* value) {
+    int pos[2] = {0, 0};
+    for(int i = 0; value[i] != '\0'; ++i) {
+        char ch = value[i];
+        if(pos[0] % width == 0 && pos[0] != 0) {
+            cout << " \033[B" << "\033[" << pos[0] << "D";
+            pos[0] = 0;
+            ++pos[1];
+        }
+        pos[0] += static_cast<int>(ch != -48 && ch != -47);
+        cout << value[i];
     }
-    
-    num = std::abs(num);
-    for(int i = len - 1; i >= 0; --i) {
-        int digit = num % 10;
-        str[i] = static_cast<char>(digit + utils::NUM_TO_STR_COEF);
+
+    int padding = max(0, width - pos[0]);
+    for(int i = 0; i < padding; ++i) {
+        cout << " ";
+    }
+
+    if(pos[1] != 0) {
+        cout << "\033[" << pos[1] << "A";
+    }
+}
+
+void print_table_row(int n, const int* widths, const char** data) {
+    for(int i = 0; i < n; ++i) {
+        print_table_cell(widths[i], data[i]);
+    }
+    cout << endl;
+}
+
+size_t utf_len(const char* str) {
+    size_t len = 0;
+    for(size_t i = 0; str[i] != '\0'; ++i) {
+        if(str[i] != -48 && str[i] != -47) {
+            ++len;
+        }
+    }
+    return len;
+}
+
+int num_len(long long num) {
+    num = abs(num);
+    int len = 0;
+    do {
         num /= 10;
+        ++len;
+    }
+    while(num > 0);
+
+    return len;
+}
+
+char* longlong2str(long long num) {
+    char* str = new char[num_len(LLONG_MAX) + 1]{0};
+    int len = num_len(num);
+    int idx = 0;
+    do {
+        str[len - idx - 1] = static_cast<char>(num % 10 + 48);
+        ++idx;
+        num /= 10;
+    }
+    while(num > 0);
+
+    return str;
+}
+
+char* double2str(double dnum) {
+    long long integer = static_cast<long long>(dnum);
+    long long fraction = static_cast<long long>(dnum * 100);
+    char* str = new char[__DBL_DECIMAL_DIG__ + 1]{0};
+
+    int point = 0;
+    char* buffer = longlong2str(integer);
+    for(point; buffer[point] != '\0'; ++point) {
+        str[point] = buffer[point];
+    }
+    delete[] buffer;
+
+    str[point] = '.';
+    ++point;
+    if(fraction == 0) {
+        str[point + 1] = '0';
+        str[point + 2] = '0';
+    }
+    else {
+        buffer = longlong2str(fraction);
+        for(point; buffer[point] != '\0'; ++point) {
+            str[point] = buffer[point];
+        }
+        delete[] buffer;
     }
 
     return str;
 }
 
-long long utils::str2num(const std::string& str) {
-	int len = str.size();
+long long str2longlong(char* str) {
     long long num = 0;
     int sign = 1;
-    for(int i = 0; i < str.size(); ++i) {
+    for(int i = 0; str[i] != '\0'; ++i) {
         char ch = str[i];
-		switch(ch) {
-			case '\0': {
-				continue;
-			}
-			case '.': {
-				num /= static_cast<long long>(std::pow(10, str.size() - 1 - i));
-				return num;
-			}
-			case '-': {
-				if(i != 0) {
-					return utils::ERR_VALUE;
-				}
-				sign = -1;
-				break;
-			}
-			default: {
-				long long value = static_cast<int>(ch) - utils::NUM_TO_STR_COEF;
-				if(0 > value || value > 9) {
-					return utils::ERR_VALUE;
-				}
-		
-				num += value * static_cast<long long>(std::pow(10, str.size() - 1 - i));
-				break;
-			}
-		}
+        switch(ch) {
+            case '-':
+                sign = -1;
+                break;
+            case '.':
+                return sign * num;
+            default:
+                int digit = static_cast<int>(ch - 48);
+                if(0 <= digit && digit <= 9) {
+                    num = num * 10 + digit;
+                }
+                else {
+                    throw invalid_argument(
+                        "Значение не является числом!"
+                    );
+                }
+                break;
+        }
     }
-    return num * sign;
+    return sign * num;
 }
 
-std::string utils::input(const std::string& header) {
-	std::cout << header;
-	
-	std::string str;
-	char ch = '\0';
-	while(true) {
-		std::cin.get(ch);
-		if(ch == '\n') {
-			break;
-		}
-		str += ch;
-	}
-	return str;
+double str2double(char* str) {
+    size_t point = -1;
+    for(size_t i = 0; str[i] != '\0'; ++i) {
+        if(str[i] == '.') {
+            point = i;
+            break;
+        }
+    }
+
+    long long integer = str2longlong(str);
+    int frac_len = 0;
+    long long frac_num = 0;
+    if(point != static_cast<size_t>(-1)) {
+        frac_len = utf_len(str + point + 1);
+        frac_num = str2longlong(str + point + 1);
+    }
+    
+    double dnum = (
+        integer >= 0 ?
+        integer + frac_num / pow(10.0, frac_len) :
+        integer - frac_num / pow(10.0, frac_len)
+    );
+    return dnum;
 }
 
-unsigned long long utils::get_unum(const std::string& header) {
-	std::string str = utils::input(header);
-	long long num = 0;
-	while(true) {
-		num = utils::str2num(str);
-		if(num == utils::ERR_VALUE || num < 0) {
-			std::cerr << "[ ERROR ] Ввод не является беззнаковым целым числом!\n";
-			str = utils::input(header);
-		}
-		else {
-			return num;
-		}
-	}
+void input(char* str, size_t max_size) {
+    char ch;
+    int size = 0;
+    while(true) {
+        cin.get(ch);
+        ++size;
+
+        if(ch == '\n' || size == max_size) {
+            str[size - 1] = '\0';
+            while(ch != '\n') {
+                cin.get(ch);
+            }
+            return;
+        }
+        str[size - 1] = ch;
+    }
 }
 
-long long utils::get_num(const std::string& header) {
-	std::string str = utils::input(header);
-	long long num = 0;
-	while(true) {
-		num = utils::str2num(str);
-		if(num == utils::ERR_VALUE) {
-			std::cerr << "[ ERROR ] Ввод не является целым числом!\n";
-			str = utils::input(header);
-		}
-		else {
-			return num;
-		}
-	}
+void input(int& num) {
+    int len = num_len(INT_MAX) + 1;
+    char* str = new char[len + 1]{0};
+    while(true) {
+        input(str, len + 1);
+        try {
+           num = str2longlong(str);
+           return;
+        }
+        catch(const std::exception& e) {
+            std::cerr << e.what() << '\n';
+        }
+    }
 }
 
-bool utils::compare_items_fields(const Item& first, const Item& second, SortField field, Operator op) {
-	bool condition;
-	switch(field) {
-		case SortField::item_name: {
-			if(op == Operator::less) {
-				condition = first.name < second.name;
-			}
-			else if(op == Operator::bigger) {
-				condition = first.name > second.name;
-			}
-			else {
-				condition = first.name == second.name;
-			}
-			break;
-		}
-		case SortField::item_price: {
-			if(op == Operator::less) {
-				condition = first.price < second.price;
-			}
-			else if(op == Operator::bigger) {
-				condition = first.price > second.price;
-			}
-			else {
-				condition = first.price == second.price;
-			}
-			break;
-		}
-		case SortField::item_qty: {
-			if(op == Operator::less) {
-				condition = first.qty < second.qty;
-			}
-			else if(op == Operator::bigger) {
-				condition = first.qty > second.qty;
-			}
-			else {
-				condition = first.qty == second.qty;
-			}
-			break;
-		}
-		case SortField::item_weight: {
-			if(op == Operator::less) {
-				condition = first.weight < second.weight;
-			}
-			else if(op == Operator::bigger) {
-				condition = first.weight > second.weight;
-			}
-			else {
-				condition = first.weight == second.weight;
-			}
-			break;
-		}
-	}
-	return condition;
+void input(long long& num) {
+    int len = num_len(LLONG_MAX) + 1;
+    char* str = new char[len + 1]{0};
+    while(true) {
+        input(str, len + 1);
+        try {
+           num = str2longlong(str);
+           return;
+        }
+        catch(const std::exception& e) {
+            std::cerr << e.what() << '\n';
+        }
+    }
 }
 
-void utils::sort(std::vector<Item>& data, SortField _sort_field) {
-	utils::sort(0, data.size() - 1, data, _sort_field);
+void input(float& dnum) {
+    int len = __FLT_DIG__ + 1;
+    char* str = new char[len + 1]{0};
+    while(true) {
+        input(str, len + 1);
+        try {
+           dnum = str2double(str);
+           return;
+        }
+        catch(const std::exception& e) {
+            std::cerr << e.what() << '\n';
+        }
+    }
 }
 
-void utils::sort(int start, int end, std::vector<Item>& data, SortField _sort_field) {
-	if(start >= end) {
-		return;
-	}
-
-	int idx = utils::randint(start, end);
-	Item& pivot = data[idx];
-
-	int l = start - 1;
-	int r = end + 1;
-	while(true) {
-		do {
-			l++;
-		} 
-		while(compare_items_fields(data[l], pivot, _sort_field, Operator::less));
-
-		do {
-			r--;
-		} 
-		while(compare_items_fields(data[r], pivot, _sort_field, Operator::bigger));
-
-		if(l >= r) {
-			break;
-		}
-		std::swap(data[l], data[r]);
-	}
-
-	l = r++; // Сначала установится l = r, затем r += 1
-	
-	utils::sort(start, l, data, _sort_field);
-	utils::sort(r, end, data, _sort_field);
+void input(double& dnum) {
+    int len = __DBL_DECIMAL_DIG__ + 1;
+    char* str = new char[len + 1]{0};
+    while(true) {
+        input(str, len + 1);
+        try {
+           dnum = str2double(str);
+           return;
+        }
+        catch(const std::exception& e) {
+            std::cerr << e.what() << '\n';
+        }
+    }
 }
 
-int utils::request(const std::string& header, const std::vector<std::string>& choice, const char alignment) {
-	int idx = -1;
-	int max_count = choice.size();
-
-	int max_str_len = 0;
-	for(const std::string& str : choice) {
-		int len = utils::utf_len(str);
-		max_str_len = std::max(max_str_len, len);
-	}
-
-	while(true) {
-		
-		if(header != "") {
-			int len = utils::utf_len(header);
-			int start_pad = utils::num_len(max_count);
-
-			std::string l_padding(std::max(max_str_len - len + 4 + 2*start_pad, 0)/2 * alignment, ' ');
-
-			std::cout << l_padding << header << "\n";
-		}
-
-		for(int i = 1; i < max_count + 1; ++i) {
-			int len = utf_len(choice[i - 1]);
-			std::string num_fill(num_len(max_count) - num_len(i), ' ');
-
-			std::string l_padding((max_str_len - len)/2 * alignment, ' ');
-			std::string r_padding((max_str_len - len)/2 * (2 - alignment), ' ');
-
-			std::string delta((max_str_len - len) % 2, ' ');
-			r_padding += (alignment == 0 ? delta : "");
-			l_padding += (alignment != 0 ? delta : "");
-
-			std::cout << "[" << num_fill << i << "|" << l_padding << choice[i - 1] << r_padding << "|" << num_fill << i << "]\n";
-		}
-
-		idx = utils::get_num("- ");
-		if(1 > idx || idx >= max_count + 1) {
-			std::cout << "\033c"; // Очищает консоль
-			std::cout << "Несуществующий номер! Попробуйте заново...\n";
-			continue;
-		}
-		return idx;
-	}
+int randint(int min, int max) {
+    return min + rand() % (max - min + 1);
 }
 
-int* utils::max_params_len(const std::vector<Item>& items) {
-	int* ptr_result = new int[4];
-
-	int max_name_len = 0;
-	int max_price_len = 0;
-	int max_qty_len = 0;
-	int max_weight_len = 0;
-
-	for(const Item& item : items) {
-		max_name_len = std::max(max_name_len, utils::utf_len(item.name));
-		max_price_len = std::max(max_price_len, utils::num_len(item.price));
-		max_qty_len = std::max(max_qty_len, utils::num_len(item.qty));
-		max_weight_len = std::max(max_weight_len, utils::num_len(item.weight));
-	}
-
-	ptr_result[0] = max_name_len;
-	ptr_result[1] = max_price_len;
-	ptr_result[2] = max_qty_len;
-	ptr_result[3] = max_weight_len;
-
-	return ptr_result;
+long long randint(long long min, long long max) {
+    return min + rand() % (max - min + 1);
 }
 
-void utils::show_data(std::vector<Item>& items) {
-	int* params_lens = max_params_len(items);
-
-	int cell_width = std::max({params_lens[0], params_lens[1], params_lens[3]});
-	cell_width += params_lens[2] + 4;
-
-	delete[] params_lens;
-	
-	int remaining = items.size();
-	int iters_count = (remaining / config::COLUMNS_COUNT) + static_cast<int>((remaining % config::COLUMNS_COUNT) > 0);
-	for(int i = 0; i < iters_count; ++i) {
-		std::string cells_row[4];
-		int cells_count = std::min(static_cast<unsigned>(remaining), config::COLUMNS_COUNT);
-		remaining -= config::COLUMNS_COUNT;
-
-		for(int j = 0; j < cells_count; ++j) {
-			int idx = config::COLUMNS_COUNT * i + j;
-			const Item& item = items[idx];
-
-			std::string roof(cell_width - utils::num_len(item.qty) - 3, '_');
-			std::string pad(utils::num_len(item.qty) + 2, ' ');
-			cells_row[0] += " " + roof + pad + " ";
-
-			pad = std::string(cell_width - utils::num_len(item.qty) - utils::utf_len(item.name) - 3, ' ');
-			cells_row[1] += "|" + item.name + pad + "[" + utils::num2str(item.qty) + "] ";
-
-			pad = std::string(cell_width - utils::num_len(item.weight) - 3, ' ');
-			cells_row[2] += "|" + pad + utils::num2str(item.weight) + "г| ";
-
-			pad = std::string(cell_width - utils::num_len(idx) - utils::num_len(item.price) - 5, '_');
-			cells_row[3] += "[#" + utils::num2str(idx) + "]" + pad + utils::num2str(item.price) + "р| ";
-		}
-
-		for(std::string& row : cells_row) {
-			std::cout << row << "\n";
-		}
-	}
+float randfrac(float min, float max) {
+    return min + rand() / static_cast<float>(RAND_MAX / (max - min));
 }
-
-int utils::randint(int min, int max) {
-    return (std::rand() * std::rand()) % (max - min + 1) + min;
+double randfrac(double min, double max) {
+    return min + rand() / static_cast<double>(RAND_MAX / (max - min));
 }

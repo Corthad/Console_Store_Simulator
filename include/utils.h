@@ -1,71 +1,35 @@
-#ifndef CONSTANTS_H
-#define CONSTANTS_H
+#ifndef UTILS_H
+#define UTILS_H
 
-#include <random>
-#include <limits>
+#include <iostream>
 
-#include "basics.h"
+void clean_screen();
+void pause_screen();
 
-namespace utils {
+void print_table_cell(int width, const char* value);
+void print_table_row(int n, const int* widths, const char** data);
 
-    const int NUM_TO_STR_COEF = 48;
+size_t utf_len(const char* str);
+int num_len(long long num);
 
-    const size_t ERR_VALUE = std::numeric_limits<long long>::max();
+char* longlong2str(long long num);
+char* double2str(double dnum);
 
-    /* Константы для выравнивания текста. */
-    const char LEFT = 0x00;
-    const char CENTER = 0x01;
-    const char RIGHT = 0x02;
+long long str2longlong(char* str);
+double str2double(char* str);
 
-    /* Получение длины строки (латиница и кирилица). */
-    int utf_len(const std::string& str);
+void input(char* str, size_t max_size);
 
-    /* Получение длины числа (целочисленного). */
-    int num_len(int num);
+void input(int& num);
+void input(long long& num);
 
-    /* Перевод числа в строку. */
-    std::string num2str(long long num);
-    /* Перевод строки в число. */
-    long long str2num(const std::string& str);
+void input(float& dnum);
+void input(double& dnum);
 
-    /* Безопасное получение строки из ввода. */
-    std::string input(const std::string& header = "");
-    /* Безопасное получение числа из ввода. */
-    long long get_num(const std::string& header = "");
-    unsigned long long get_unum(const std::string& header = "");
+int randint(int min, int max);
+long long randint(long long min, long long max);
 
-    /* Сравнение двух `Item` по одному из параметров */
-    bool compare_items_fields(const Item& first, const Item& second, SortField field, Operator op);
+float randfrac(float min, float max);
+double randfrac(double min, double max);
 
-    void sort(std::vector<Item>& data, SortField _sort_field);
-    void sort(int start, int end, std::vector<Item>& data, SortField _sort_field);
-
-    /**
-     * @brief Создание окна с выбором.
-     * 
-     * @param header заголовок "окна".
-     * @param choice возможные варианты выбора.
-     * @param alignment выравнивание "окна". По умолчанию: LEFT.
-     * 
-     * @return `idx` - индекс выбранного значения.
-     */
-    int request(const std::string& header, const std::vector<std::string>& choice, const char alignment = LEFT);
-
-    /**
-     * @brief Вспомогательный метод для получения максимальной длины среди имён, цен, количеств и весов. 
-     * @param items Список предметов, где нужно найти максимальные значения длины имени, цены, кол-ва и веса.
-     * @return Список из 4-х значений (максимальных длин): [имя, цена, кол-во, вес].
-     */
-    int* max_params_len(const std::vector<Item>& items);
-
-    /**
-     * @brief Отображение данных в табличном виде.
-     * @param items Список данных.
-     */
-    void show_data(std::vector<Item>& items);
-    
-    /* Случайное число в установленном диапазоне. */
-    int randint(int min, int max);
-}
-
-#endif // CONSTANTS_H
+#endif // UTILS_H
