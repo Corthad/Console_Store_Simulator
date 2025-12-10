@@ -12,7 +12,7 @@
 #include "constants.h"
 #include "global.h"
 #include "structures.h"
-//#include "events.h"      
+#include "events.h"      
 
 using namespace std;
 
@@ -100,8 +100,7 @@ void owner_menu() {
                 pause_screen();
                 break;
             case 9:
-                //random_event_owner();
-				cout << "Этот функционал еще находится в разработке.\n";
+                random_event_owner();
                 pause_screen();
                 break;
             case 0:
@@ -167,8 +166,7 @@ void customer_menu() {
                 buy_bag();
                 break;
             case 8:
-                //random_event_customer();
-				cout << "Этот функционал еще находится в разработке.\n";
+                random_event_customer();
                 pause_screen();
                 break;
             case 0:
