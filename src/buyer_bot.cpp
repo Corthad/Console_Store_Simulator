@@ -30,9 +30,23 @@ customer_data generate_random_customer(int id) {
 }
 
 bool try_add_product_to_customer_basket(customer_data& customer, int product_index) {
+    // Проверяем валидность индекса
+    if (product_index < 0 || product_index >= g_shop.product_count) {
+        return false;
+    }
+    
     // Проверяем, есть ли товар в наличии
     if (g_shop.products[product_index].quantity <= 0) {
         return false;
+    }
+    
+    // Находим, сколько уже есть этого товара в корзине
+    int already_in_basket = 0;
+    for (int i = 0; i < customer.basket_count; i++) {
+        if (customer.basket[i].product_index == product_index) {
+            already_in_basket = customer.basket[i].quantity;
+            break;
+        }
     }
     
     // Определяем, сколько единиц товара покупатель может купить
@@ -45,7 +59,9 @@ bool try_add_product_to_customer_basket(customer_data& customer, int product_ind
     
     int max_by_capacity = customer.capacity - customer.total_items;
     int max_by_weight = static_cast<int>((customer.max_weight - customer.current_weight) / g_shop.products[product_index].weight);
-    int max_by_stock = g_shop.products[product_index].quantity;
+    
+    // Доступное количество в магазине за вычетом уже в корзине
+    int max_by_stock = g_shop.products[product_index].quantity - already_in_basket;
     
     // Берем минимальное из всех ограничений
     int max_possible = min(min(min(max_by_money, max_by_capacity), max_by_weight), max_by_stock);
@@ -97,10 +113,15 @@ void process_customer_checkout(customer_data& customer) {
     float total_sales = 0.0f;
     float total_profit = 0.0f;
     
-    // Обрабатываем каждый товар в корзине покупателя
+    // Сначала обрабатываем все товары в корзине, уменьшая количество
     for (int i = 0; i < customer.basket_count; i++) {
         int product_index = customer.basket[i].product_index;
         int quantity = customer.basket[i].quantity;
+        
+        // Проверяем валидность индекса
+        if (product_index < 0 || product_index >= g_shop.product_count) {
+            continue;
+        }
         
         // Обновляем магазин
         g_shop.products[product_index].quantity -= quantity;
@@ -113,19 +134,24 @@ void process_customer_checkout(customer_data& customer) {
         
         total_sales += sale_amount;
         total_profit += profit;
-        
-        // Удаляем товар если количество = 0
-        if (g_shop.products[product_index].quantity == 0) {
-            for (int j = product_index; j < g_shop.product_count - 1; j++) {
-                g_shop.products[j] = g_shop.products[j + 1];
-            }
-            g_shop.product_count--;
-            // Корректируем индексы в корзине других покупателей
-            for (int j = i + 1; j < customer.basket_count; j++) {
-                if (customer.basket[j].product_index > product_index) {
+    }
+    
+    // Затем удаляем товары с количеством <= 0
+    // Идем с конца массива, чтобы избежать проблем со сдвигом индексов
+    for (int i = g_shop.product_count - 1; i >= 0; i--) {
+        if (g_shop.products[i].quantity <= 0) {
+            // Обновляем индексы в корзине текущего покупателя
+            for (int j = 0; j < customer.basket_count; j++) {
+                if (customer.basket[j].product_index > i) {
                     customer.basket[j].product_index--;
                 }
             }
+            
+            // Удаляем товар из массива магазина
+            for (int j = i; j < g_shop.product_count - 1; j++) {
+                g_shop.products[j] = g_shop.products[j + 1];
+            }
+            g_shop.product_count--;
         }
     }
     
@@ -145,23 +171,21 @@ void simulate_customer_purchase(customer_data& customer) {
     customer.total_items = 0;
     customer.current_weight = 0.0f;
     
+    // Если в магазине нет товаров, выходим
+    if (g_shop.product_count == 0) {
+        return;
+    }
+    
     // Покупатель пытается сделать несколько покупок
     int max_purchase_attempts = 5 + rand() % 6; // от 5 до 10 попыток
     int attempts = 0;
     
     while (attempts < max_purchase_attempts && customer.total_items < customer.capacity) {
-        // Если в магазине нет товаров, выходим
-        if (g_shop.product_count == 0) {
-            break;
-        }
-        
         // Выбираем случайный товар
         int product_index = rand() % g_shop.product_count;
         
         // Пытаемся добавить товар в корзину
-        if (try_add_product_to_customer_basket(customer, product_index)) {
-            // Успешно добавили товар
-        }
+        try_add_product_to_customer_basket(customer, product_index);
         
         attempts++;
     }
