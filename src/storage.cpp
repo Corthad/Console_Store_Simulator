@@ -193,9 +193,10 @@ void print_product_customer_view(const product& p) {
     delete[] value;
 }
 
-void print_base_product(const base_product& p) {
-    const int widths[] = {25, 15, 10};
+void print_base_product(const base_product& p, int n) {
+    const int widths[] = {3, 25, 15, 10};
     const char** value = new const char*[]{
+        longlong2str(n),
         p.name,
         double2str(p.purchase_price),
         double2str(p.weight)
@@ -204,8 +205,10 @@ void print_base_product(const base_product& p) {
 
     print_table_row(size, widths, value);
 
-    for(int i = 1; i < size; ++i) {
-        delete[] value[i];
+    for(int i = 0; i < size; ++i) {
+        if(i != 1) {
+            delete[] value[i];
+        }
     }
     delete[] value;
 }
@@ -228,9 +231,6 @@ void show_products() {
     print_table_row(size, widths, value);
     cout << string(95, '-') << endl;
 
-    for(int i = 1; i < size; ++i) {
-        delete[] value[i];
-    }
     delete[] value;
     
     for (int i = 0; i < g_shop.product_count; i++) {
@@ -247,22 +247,19 @@ void show_all_products_list() {
     }
     
     cout << "=== ВСЕ ТОВАРЫ ИЗ БАЗЫ ===\n";
-    const int widths[] = {25, 15, 10};
-    const char** value = new const char*[] {"Название", "Цена закупки", "Вес (кг)"};
+    const int widths[] = {3, 25, 15, 10};
+    const char** value = new const char*[] {"N", "Название", "Цена закупки", "Вес (кг)"};
     int size = sizeof(widths) / sizeof(widths[0]);
 
     print_table_row(size, widths, value);
     cout << string(50, '-') << endl;
 
-    for(int i = 1; i < size; ++i) {
-        delete[] value[i];
-    }
     delete[] value;
     
     for (int i = 0; i < g_all_products.product_count; i++) {
-        cout << i + 1 << ". ";
-        print_base_product(g_all_products.products[i]);
+        print_base_product(g_all_products.products[i], i + 1);
     }
+    cout << endl;
     
     // Показываем, какие из этих товаров уже есть в магазине
     cout << "=== ТОВАРЫ, КОТОРЫЕ УЖЕ ЕСТЬ В МАГАЗИНЕ ===\n";
@@ -291,9 +288,6 @@ void show_all_products_list() {
                     print_table_row(size, widths, value);
                     cout << string(60, '-') << endl;
 
-                    for(int i = 1; i < size; ++i) {
-                        delete[] value[i];
-                    }
                     delete[] value;
                 }
 
@@ -343,6 +337,9 @@ void search_product() {
 
                 print_table_row(size, widths, value);
                 cout << string(55, '-') << endl;
+
+                delete[] value;
+
                 found = true;
             }
             print_product_customer_view(g_shop.products[i]);

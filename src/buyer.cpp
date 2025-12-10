@@ -176,12 +176,14 @@ void show_basket() {
     }
     
     cout << "=== ВАША КОРЗИНА ===\n";
-    cout << left << setw(20) << "Товар" 
-         << setw(10) << "Кол-во" 
-         << setw(10) << "Вес ед. (кг)"
-         << setw(15) << "Цена за ед." 
-         << setw(15) << "Сумма" << endl;
+    const int widths[] = {20, 10, 10, 15, 15};
+    const char** value = new const char*[] {"Товар", "Кол-во", "Вес ед. (кг)", "Цена за ед.", "Сумма"};
+    int size = sizeof(widths) / sizeof(widths[0]);
+
+    print_table_row(size, widths, value);
     cout << string(70, '-') << endl;
+
+    delete[] value;
     
     float total = 0;
     for (int i = 0; i < g_customer.basket_count; i++) {
@@ -189,11 +191,22 @@ void show_basket() {
         float item_total = g_shop.products[idx].selling_price * g_customer.basket[i].quantity;
         total += item_total;
         
-        cout << left << setw(20) << g_shop.products[idx].name
-             << setw(10) << g_customer.basket[i].quantity
-             << setw(10) << fixed << setprecision(2) << g_shop.products[idx].weight
-             << setw(15) << fixed << setprecision(2) << g_shop.products[idx].selling_price
-             << setw(15) << fixed << setprecision(2) << item_total << endl;
+        const int widths[] = {20, 10, 10, 15, 15};
+        const char** value = new const char*[] {
+            g_shop.products[idx].name, 
+            longlong2str(g_customer.basket[i].quantity),
+            double2str(g_shop.products[idx].weight),
+            double2str(g_shop.products[idx].selling_price),
+            double2str(item_total)
+        };
+        int size = sizeof(widths) / sizeof(widths[0]);
+
+        print_table_row(size, widths, value);
+
+        for(int i = 1; i < size; ++i) {
+            delete[] value[i];
+        }
+        delete value;
     }
     
     cout << string(70, '-') << endl;

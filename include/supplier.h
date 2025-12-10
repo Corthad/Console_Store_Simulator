@@ -7,6 +7,6 @@ void generate_supplier_products();
 void show_supplier_products();
 void purchase_from_supplier();
 int find_supplier_product_by_name(const char* name);
-void print_supplier_product(const product& p);
+void print_supplier_product(const product& p, int n);
 
 #endif // SUPPLIER_H

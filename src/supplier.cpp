@@ -24,11 +24,25 @@ int find_supplier_product_by_name(const char* name) {
     return -1;
 }
 
-void print_supplier_product(const product& p) {
-    cout << left << setw(20) << p.name 
-         << setw(20) << fixed << setprecision(2) << p.purchase_price 
-         << setw(15) << p.quantity 
-         << setw(15) << fixed << setprecision(2) << p.weight << endl;
+void print_supplier_product(const product& p, int n) {
+    const int widths[] = {3, 20, 20, 15, 15};
+    const char** value = new const char*[] {
+        longlong2str(n),
+        p.name,
+        double2str(p.purchase_price),
+        longlong2str(p.quantity),
+        double2str(p.weight)
+    };
+    int size = sizeof(widths) / sizeof(widths[0]);
+
+    print_table_row(size, widths, value);
+    
+    for(int i = 0; i < size; ++i) {
+        if(i != 1) {
+            delete[] value[i];
+        }
+    }
+    delete[] value;
 }
 
 void generate_supplier_products() {
@@ -106,15 +120,17 @@ void show_supplier_products() {
     }
     
     cout << "=== ТОВАРЫ У ПОСТАВЩИКА ===\n";
-    cout << left << setw(20) << "Название" 
-         << setw(20) << "Цена закупки" 
-         << setw(15) << "Кол-во" 
-         << setw(15) << "Вес (кг)" << endl;
+    const int widths[] = {3, 20, 20, 15, 15};
+    const char** value = new const char*[] {"N", "Название", "Цена закупки", "Кол-во", "Вес (кг)"};
+    int size = sizeof(widths) / sizeof(widths[0]);
+    
+    print_table_row(size, widths, value);
     cout << string(70, '-') << endl;
+
+    delete[] value;
     
     for (int i = 0; i < g_supplier.product_count; i++) {
-        cout << i + 1 << ". ";
-        print_supplier_product(g_supplier.products[i]);
+        print_supplier_product(g_supplier.products[i], i + 1);
     }
 }
 
